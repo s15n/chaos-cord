@@ -1,6 +1,8 @@
 import { Component } from 'react'
 import { CallbackHandler, noCallback } from '../Callback'
 import Header from './Header';
+import MemberList from './MemberList';
+import ChatArea from './ChatArea';
 
 const memberListHandler: CallbackHandler<boolean> = {
     callback: noCallback
@@ -38,8 +40,8 @@ export default class ChatContainer extends Component<{}, {
             <div id='ChatContainer' className='full-height column'>
                 <Header channelName='text'/>
                 <div className='row'>
-                    <div/>
-                    {this.state.memberListVisible ? <div>Members</div> : null}
+                    <ChatArea/>
+                    {this.state.memberListVisible ? <MemberList/> : null}
                 </div>
             </div>
         )

@@ -1,11 +1,11 @@
 import { Component, CSSProperties } from 'react'
 
-type ButtonProps = { 
+type ButtonProps = {
     style?: CSSProperties | undefined,
     //hover?: (over: boolean, ref: Button) => void,
     baseColor: any,
-    overColor: any,
-    activeColor: any,
+    overColor?: any,
+    activeColor?: any,
     onClick?: ButtonClickListener,
     toggle?: boolean,
     active?: boolean,
@@ -33,7 +33,7 @@ export default class Button extends Component<ButtonProps, ButtonState> {
             style={{
                 cursor: 'pointer',
                 ...this.props.style,
-                color: this.state.active ? this.props.activeColor : this.state.over ? this.props.overColor : this.props.baseColor
+                color: this.state.active ? this.props.activeColor ?? this.props.baseColor : this.state.over ? this.props.overColor ?? this.props.baseColor : this.props.baseColor
             }}
             onMouseEnter={() => {
                 this.setState({ over: true })
