@@ -1,26 +1,25 @@
-import React from 'react';
-import logo from './logo.svg';
+import { Component } from 'react';
 import './App.css';
+import Sidebar from './sidebar/Sidebar';
+import Guilds from './guildsbar/Guilds';
+import ChatContainer from './chat/ChatContainer';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+export default class App extends Component {
+  componentDidMount() {
+    // discord login
+  }
+
+  componentWillUnmount() {
+    // discord close
+  }
+
+  render() {
+    return (
+      <div className='full-size row'>
+        <Guilds/>
+        <Sidebar/>
+        <ChatContainer/>
+      </div>
+    )
+  }
 }
-
-export default App;

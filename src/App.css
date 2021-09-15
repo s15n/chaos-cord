@@ -1,38 +1,62 @@
-.App {
-  text-align: center;
+span {
+  color: #f2f2f2;
+  font-size: 16;
+  font-style: normal;
+  font-weight: 400;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+h3 {
+  color: #f2f2f2;
+  font-size: 16;
+  font-weight: 600;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+section {
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
 
-.App-link {
-  color: #61dafb;
+#Guilds {
+  background-color: #131313;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+#Sidebar {
+  background-color: #222222;
+}
+
+#ChatContainer {
+  background-color: #272727;
+}
+
+.row {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+}
+
+.column {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.vertical-center {
+  vertical-align: middle;
+}
+
+.horizontal-center {
+  align-self: center;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+}
+
+.full-size {
+  width: 100vw;
+  height: 100vh;
+}
+
+.full-height {
+  height: 100vh;
 }
