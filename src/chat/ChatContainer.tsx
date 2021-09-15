@@ -6,8 +6,11 @@ const memberListHandler: CallbackHandler<boolean> = {
     callback: noCallback
 }
 
-export function setMemberListVisible(visible: boolean) {
-    memberListHandler.callback(visible);
+let memberListVisible = true;
+
+export function toggleMemberListVisible() {
+    memberListHandler.callback(!memberListVisible);
+    memberListVisible = !memberListVisible;
 }
 
 export default class ChatContainer extends Component<{}, {
@@ -36,7 +39,7 @@ export default class ChatContainer extends Component<{}, {
                 <Header channelName='text'/>
                 <div className='row'>
                     <div/>
-                    {this.state.memberListVisible ? <div/> : null}
+                    {this.state.memberListVisible ? <div>Members</div> : null}
                 </div>
             </div>
         )

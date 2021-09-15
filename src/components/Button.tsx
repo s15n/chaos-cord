@@ -6,7 +6,9 @@ type ButtonProps = {
     baseColor: any,
     overColor: any,
     activeColor: any,
-    onClick?: ButtonClickListener
+    onClick?: ButtonClickListener,
+    toggle?: boolean,
+    active?: boolean,
 }
 
 type ButtonState = {
@@ -21,7 +23,7 @@ export default class Button extends Component<ButtonProps, ButtonState> {
         super(props);
         this.state = {
             over: false,
-            active: false
+            active: props.active ?? false
         }
     }
 
@@ -40,10 +42,10 @@ export default class Button extends Component<ButtonProps, ButtonState> {
                 this.setState({ over: false })
             }}
             onMouseDown={() => {
-                this.setState({ active: true })
+                this.setState({ active: this.props.toggle ? !this.state.active : true })
             }}
             onMouseUp={() => {
-                this.setState({ active: false })
+                if (!this.props.toggle) this.setState({ active: false })
             }}
             onClick={(e) => {
                 this.props.onClick?.(e, this)
