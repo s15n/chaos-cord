@@ -1,7 +1,15 @@
+h2 {
+  color: #f2f2f2;
+  font-size: 16;
+  font-weight: 500;
+}
+
 h3 {
   color: #f2f2f2;
   font-size: 16;
   font-weight: 600;
+  margin-top: 0px;
+  margin-bottom: 0px;
 }
 
 section {
@@ -33,6 +41,10 @@ section {
   font-size: 16;
   font-style: normal;
   font-weight: 400;
+}
+
+.message-text {
+  color: #d7d7d7
 }
 
 .input {
@@ -77,4 +89,9 @@ section {
 
 .full-height {
   height: 100vh;
+}
+
+.avatar {
+  position: absolute;
+  border-radius: 50%;
 }

@@ -1,7 +1,7 @@
 import { Component, createRef } from 'react'
 import { CallbackHandler, noCallback } from '../Callback'
 import Button from '../components/Button';
-import TextInput from '../components/TextInput';
+import ChatMessage from './ChatMessage';
 
 const messageHandler: CallbackHandler<string> = {
     callback: noCallback
@@ -36,18 +36,30 @@ export default class ChatArea extends Component<{}, {
 }
 
 class Chat extends Component<{}, {
-    messages: string[]
+    messages: any[]
 }> {
-    _messages: string[] = []
+    _messages: any[] = []
 
-    constructor(props: {messages: string[]}) {
+    constructor(props: {messages: any[]}) {
         super(props)
         this.state = {
             messages: []
         }
+        fetch('https://discord.com/api/v9/channels/581185346465824770/messages?limit=50', {
+            headers: {
+                'Authorization': 'ODg3MzM4OTU4NDUzODY2NTU3.YUCs2A.XZz40Vz7W5foc3vYrrhG0Zhs6ts'
+            }
+        }).then(value => {
+            value.json().then(messages => {
+                this._messages = messages
+                this.setState({
+                    messages: this._messages
+                })
+            })
+        })
     }
 
-    pushMessage(message: string) {
+    pushMessage(message: any) {
         this._messages.push(message)
         return this._messages
     }
@@ -65,9 +77,39 @@ class Chat extends Component<{}, {
     }
 
     render() {
+        const size = this.state.messages.length
+        let arr = Array(size)
+        let prevUserId
+        for (let i = 0; i < size; ++i) {
+            const message = this.state.messages[size - i - 1]
+            const userId = message.author.id
+            let groupStart = userId !== prevUserId
+            if (!groupStart) {
+                
+            }
+            arr[size - i - 1] = <ChatMessage 
+            text={message.content} 
+            groupStart={groupStart} 
+            author={groupStart ? authorImage(message, userId) : undefined}
+            time={groupStart ? Date.parse(message.timestamp) : undefined}
+            />
+            prevUserId = userId;
+        }
+
         return (
-            <div>
-                Chat
+            <div style={{
+                height: '100%',
+            }}>
+                <div style={{
+                    height: 'calc(100% - 140px)', //'calc(100% - 60px - 48px - 32px)'
+                    display: 'flex',
+                    flexDirection: 'column-reverse',
+                    overflowX: 'hidden',
+                    overflowY: 'auto',
+                    position: 'fixed',
+                }}>
+                    {arr}
+                </div>
             </div>
         )
     }
@@ -88,6 +130,34 @@ class Input extends Component<InputProps, {
             input: props.input[0]
         }
         this.textAreaRef = createRef()
+    }
+
+    submit(text: string) {
+        fetch('https://discord.com/api/v9/channels/581185346465824770/messages', {
+            method: 'POST',
+            body: JSON.stringify({content: text}),
+            headers: {
+                'Authorization': 'ODg3MzM4OTU4NDUzODY2NTU3.YUCs2A.XZz40Vz7W5foc3vYrrhG0Zhs6ts',
+                'Content-Type': 'application/json'
+            }
+        })
+        /*
+        function submit() {
+        if (currentInput.length === 0) return;
+        const text = currentInput;
+        //messages.push(currentInput);
+        setCurrentInput("");
+        textInput?.clear();
+
+        axios.post('https://discord.com/api/v9/channels/581185346465824770/messages', {
+            content: text
+        }, {
+            headers: {
+                'Authorization': 'ODg3MzM4OTU4NDUzODY2NTU3.YUCs2A.XZz40Vz7W5foc3vYrrhG0Zhs6ts',
+                'Content-Type': 'application/json'
+            }
+        })
+        }*/
     }
 
     render() {
@@ -120,7 +190,7 @@ class Input extends Component<InputProps, {
                             <Button style={{
                                 width: 24,
                                 height: 24,
-                            }} baseColor='#cccccc'>
+                            }} baseColor='#cccccc' overColor='#dddddd' activeColor='#eeeeee'>
                                 <svg width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.00098C6.486 2.00098 2 6.48698 2 12.001C2 17.515 6.486 22.001 12 22.001C17.514 22.001 22 17.515 22 12.001C22 6.48698 17.514 2.00098 12 2.00098ZM17 13.001H13V17.001H11V13.001H7V11.001H11V7.00098H13V11.001H17V13.001Z"></path></svg>
                             </Button>
                         </div>
@@ -147,15 +217,21 @@ class Input extends Component<InputProps, {
                         onKeyPress={e => {
                             if (e.key === 'Enter' && !e.shiftKey) {
                                 const ref: HTMLTextAreaElement = this.textAreaRef.current
+                                if (!ref.textContent) return
+
                                 this.setState({input: ''})
                                 console.log(ref.textContent)
                                 e.preventDefault()
+
+                                this.submit(ref.textContent)
                             }
                         }}
                         onChange={e => {
                             this.setState({input: e.target.value})
                         }}
                         value={this.state.input}
+                        placeholder='Message #text'
+                        autoFocus={true}
                         />
                     </div>
 
@@ -215,10 +291,19 @@ class EmojiButton extends Component<{}, {
     }
 }
 
+function authorImage(message: any, userId=message.author.id) {
+    const avatar = message.author.avatar;
+    const image = avatar ? `https://cdn.discordapp.com/avatars/${userId}/${avatar}.webp?size=128` : `https://cdn.discordapp.com/embed/avatars/${message.author.discriminator % 5}.png`
+    return {
+        image: image,
+        name: (message.member?.nick ?? message.author.username) as string
+    }
+}
+
 
 /*
 class Chat extends Component {
-    _messages = [];
+    /*_messages = [];
 
     _pushMessage(message) {
         this._messages.push(message);
@@ -254,9 +339,9 @@ class Chat extends Component {
 
     componentWillUnmount() {
         messageHandler.callback = () => {};
-    }
+    }*/
 
-    render() {
+    /*render() {
         return (
             <View style={[universalStyle.container, {
                 height: windowSize.height - 60 - 48,
@@ -265,29 +350,6 @@ class Chat extends Component {
                 <SectionList
                 scrollsToTop={false}
                 inverted={true}
-                sections={(() => {
-                    const size = this.state.messages.length;
-                    let arr = Array(size);
-                    let prevUserId;
-                    for (let i = 0; i < size; ++i) {
-                        const message = this.state.messages[i];
-                        const userId = message.author.id;
-                        let groupStart = userId !== prevUserId;
-                        if (!groupStart) {
-                            
-                        }
-                        arr[size - i - 1] = {
-                            value: message.content,
-                            groupStart: groupStart,
-                            author: groupStart ? authorImage(message, userId) : undefined,
-                            time: groupStart ? Date.parse(message.timestamp) : undefined,
-                        };
-                        prevUserId = userId;
-                    }
-                    return [
-                        { data: arr }
-                    ];
-                })()}
                 renderItem={({item}) => <ChatMessage groupStart={item.groupStart} text={item.value} author={item.author}/>}
                 renderSectionFooter={() => <ChatMessageDivider date={new Date()}/>}
                 stickySectionHeadersEnabled={false}
@@ -421,9 +483,9 @@ const Input = ({inputDelegate: [currentInput, setCurrentInput]}) => {
             </View>
         </View>
     );
-}
+}*/
 
-function authorImage(message, userId=message.author.id) {
+/*function authorImage(message, userId=message.author.id) {
     const avatar = message.author.avatar;
     const uri = avatar ? `https://cdn.discordapp.com/avatars/${userId}/${avatar}.webp?size=128` : `https://cdn.discordapp.com/embed/avatars/${message.author.discriminator % 5}.png`
     return {
