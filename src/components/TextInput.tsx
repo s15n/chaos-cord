@@ -24,18 +24,8 @@ export default class TextInput extends Component<TextInputProps, TextInputState>
 
     render() {
         return (
-            <div style={{
-                cursor: 'text',
-                ...this.props.style
-            }}>
-                <span onClick={() => this.setState({focused: true})} style={{
-                    position: 'absolute',
-                    paddingLeft: 2,
-                    paddingRight: 2,
-                    color: this.state.text.length === 0 ? this._textColorPlaceholder : this._textColor
-                }}>
-                    {this.props.placeholder}
-                </span>
+            <div style={this.props.style}>
+                {this.props.children}
             </div>
         )
     }

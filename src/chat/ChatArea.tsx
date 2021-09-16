@@ -1,4 +1,4 @@
-import { Component } from 'react'
+import { Component, createRef } from 'react'
 import { CallbackHandler, noCallback } from '../Callback'
 import Button from '../components/Button';
 import TextInput from '../components/TextInput';
@@ -77,7 +77,19 @@ type InputProps = {
     input: [string, (set: string) => void]
 }
 
-class Input extends Component<InputProps> {
+class Input extends Component<InputProps, {
+    input: string
+}> {
+    textAreaRef: any
+
+    constructor(props: InputProps) {
+        super(props)
+        this.state = {
+            input: props.input[0]
+        }
+        this.textAreaRef = createRef()
+    }
+
     render() {
         return (
             <form style={{
@@ -115,19 +127,35 @@ class Input extends Component<InputProps> {
                     </div>
 
                     <div style={{
-                        paddingTop: 11,
+                        paddingTop: 9,
                         paddingLeft: 10,
                         paddingRight: 10,
                         display: 'flex',
                         flexGrow: 1,
                     }}>
-                        <TextInput
+                        <textarea
+                        ref={this.textAreaRef}
+                        className='text input' 
                         style={{
+                            backgroundColor: '#ffffff00',
+                            borderWidth: 0,
+                            resize: 'none',
                             height: 22,
                             width: '100%',
                             fontSize: 16,
                         }}
-                        placeholder='Message #text'
+                        onKeyPress={e => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                const ref: HTMLTextAreaElement = this.textAreaRef.current
+                                this.setState({input: ''})
+                                console.log(ref.textContent)
+                                e.preventDefault()
+                            }
+                        }}
+                        onChange={e => {
+                            this.setState({input: e.target.value})
+                        }}
+                        value={this.state.input}
                         />
                     </div>
 
@@ -152,9 +180,6 @@ class EmojiButton extends Component<{}, {
 
     render() {
         const isHoverEmoji = this.state.isHoverEmoji
-        const setHoverEmoji = (set: boolean) => this.setState({
-            isHoverEmoji: set
-        })
         const emojiIndex = this.state.emojiIndex
         return (
             <div style={{
@@ -167,10 +192,13 @@ class EmojiButton extends Component<{}, {
                     paddingLeft: 4 - (isHoverEmoji ? 1 : 0),
                     paddingTop: 11 - (isHoverEmoji ? 1 : 0)
                 }}>
-                    <Button style={{
-                        //width: 22,
-                        //height: 22,
-                    }} baseColor='#ffffff'>
+                    <Button onHover={over => {
+                        const state: any = over ? { 
+                            isHoverEmoji: true, 
+                            emojiIndex: Math.floor(Math.random() * 0x37) + 0x1f600
+                        } : { isHoverEmoji: false }
+                        this.setState(state)
+                    }}>
                         <img
                             style={{
                                 filter: `grayscale(${isHoverEmoji ? 0 : 100}%)`,
@@ -178,17 +206,9 @@ class EmojiButton extends Component<{}, {
                                 height: 22 + (isHoverEmoji ? 2 : 0),
                             }}
                             src={`https://abs-0.twimg.com/emoji/v2/svg/${emojiIndex.toString(16)}.svg`}
+                            alt='emoji'
                         />
                     </Button>
-                    <div style={{
-                        position: "absolute",
-                        cursor: "pointer",
-                        width: 22,
-                        height: 22
-                    }} onMouseEnter={() => {
-                        setHoverEmoji(true)
-                        this.setState({emojiIndex: Math.floor(Math.random() * 0x37) + 0x1f600})
-                    }} onMouseLeave={() => setHoverEmoji(false)}/>
                 </div>
             </div>
         )

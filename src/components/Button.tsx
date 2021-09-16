@@ -3,10 +3,13 @@ import { Component, CSSProperties } from 'react'
 type ButtonProps = {
     style?: CSSProperties | undefined,
     //hover?: (over: boolean, ref: Button) => void,
-    baseColor: any,
+    baseColor?: any,
     overColor?: any,
     activeColor?: any,
+
     onClick?: ButtonClickListener,
+    onHover?: ButtonHoverListener,
+
     toggle?: boolean,
     active?: boolean,
 }
@@ -17,6 +20,7 @@ type ButtonState = {
 }
 
 export type ButtonClickListener = (event: React.MouseEvent<HTMLDivElement, MouseEvent>, ref: Button) => void
+export type ButtonHoverListener = (over: boolean, ref: Button) => void
 
 export default class Button extends Component<ButtonProps, ButtonState> {
     constructor(props: ButtonProps) {
@@ -33,13 +37,19 @@ export default class Button extends Component<ButtonProps, ButtonState> {
             style={{
                 cursor: 'pointer',
                 ...this.props.style,
-                color: this.state.active ? this.props.activeColor ?? this.props.baseColor : this.state.over ? this.props.overColor ?? this.props.baseColor : this.props.baseColor
+                color: (this.state.active
+                    ? this.props.activeColor ?? this.props.baseColor
+                    : this.state.over
+                        ? this.props.overColor ?? this.props.baseColor
+                        : this.props.baseColor) ?? this.props.style?.color
             }}
             onMouseEnter={() => {
                 this.setState({ over: true })
+                this.props.onHover?.(true, this)
             }}
             onMouseLeave={() => {
                 this.setState({ over: false })
+                this.props.onHover?.(false, this)
             }}
             onMouseDown={() => {
                 this.setState({ active: this.props.toggle ? !this.state.active : true })
