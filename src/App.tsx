@@ -3,14 +3,15 @@ import './App.css';
 import Sidebar from './sidebar/Sidebar';
 import Guilds from './guildsbar/Guilds';
 import ChatContainer from './chat/ChatContainer';
+import { discordClose, discordLogin } from './discord/DiscordMain';
 
 export default class App extends Component {
   componentDidMount() {
-    // discord login
+    discordLogin()
   }
 
   componentWillUnmount() {
-    // discord close
+    discordClose()
   }
 
   render() {

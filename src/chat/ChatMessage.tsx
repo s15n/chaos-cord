@@ -1,4 +1,5 @@
 import { Component } from "react"
+import { emojiSubst } from "../discord/discord-utils"
 
 const ChatMessage = ({text, groupStart, author, time}: {
     text: string, 
@@ -94,11 +95,11 @@ const ChatMessageContent = ({text}: {text: string}) => {
             result.push(<Emoji id={id.toString(16)}/>)
             length = groups.emoji.length
         } else if (groups?.emoji_name) {
-            /*const subst = emojiSubst[groups.emoji_name.slice(1, -1)]
+            const subst = emojiSubst[groups.emoji_name.slice(1, -1)]
             if (subst) {
                 result.push(<Emoji id={subst}/>)
                 length = groups.emoji_name.length
-            }*/
+            }
         } else if (groups?.custom_emoji) {
             result.push(<Emoji url={`https://cdn.discordapp.com/emojis/${(groups.custom_emoji.split(':')[2].slice(0, -1))}.png`}/>)
             length = groups.custom_emoji.length
