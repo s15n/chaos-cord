@@ -1,6 +1,7 @@
 import { Component, createRef } from 'react'
 import { CallbackHandler, noCallback } from '../Callback'
 import Button from '../components/Button';
+import { isMemberListVisible } from './ChatContainer';
 import ChatMessage from './ChatMessage';
 
 const messageHandler: CallbackHandler<any> = {
@@ -50,12 +51,12 @@ class Chat extends Component<{}, {
             headers: {
                 'Authorization': 'ODg3MzM4OTU4NDUzODY2NTU3.YUCs2A.XZz40Vz7W5foc3vYrrhG0Zhs6ts'
             }
-        }).then(value => {
-            value.json().then(messages => {
-                this._messages = messages.reverse()
-                this.setState({
-                    messages: this._messages
-                })
+        }).then(value => 
+            value.json()
+        ).then(messages => {
+            this._messages = messages.reverse()
+            this.setState({
+                messages: this._messages
             })
         })
     }
@@ -102,10 +103,13 @@ class Chat extends Component<{}, {
         return (
             <div style={{
                 height: '100%',
+                width: '100%',
             }}>
                 <div style={{
-                    height: 'calc(100% - 140px)', //'calc(100% - 60px - 48px - 32px)'
+                    height: 'calc(100% - 116px)', // 100% - 60px - 48px - 8px
+                    width: `calc(100% - ${isMemberListVisible() ? 557 : 317}px`, // 100% - 240px - 240px? - 72px - 5px
                     display: 'flex',
+                    flex: 1,
                     flexDirection: 'column-reverse',
                     overflowX: 'hidden',
                     overflowY: 'auto',
@@ -152,7 +156,6 @@ class Input extends Component<InputProps, {
                 height: 68,
                 paddingLeft: 16,
                 paddingRight: 16,
-                marginTop: -8,
             }}>
                 <div id='ChatInput' className='row' style={{
                     height: 44,

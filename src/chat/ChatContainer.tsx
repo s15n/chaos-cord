@@ -11,8 +11,12 @@ const memberListHandler: CallbackHandler<boolean> = {
 let memberListVisible = true;
 
 export function toggleMemberListVisible() {
-    memberListHandler.callback(!memberListVisible);
-    memberListVisible = !memberListVisible;
+    memberListHandler.callback(!memberListVisible)
+    memberListVisible = !memberListVisible
+}
+
+export function isMemberListVisible() {
+    return memberListVisible
 }
 
 export default class ChatContainer extends Component<{}, {
@@ -32,7 +36,7 @@ export default class ChatContainer extends Component<{}, {
     }
 
     componentWillUnmount() {
-        memberListHandler.callback = noCallback;
+        memberListHandler.callback = noCallback
     }
 
     render() {
