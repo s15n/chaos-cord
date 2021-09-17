@@ -1,6 +1,7 @@
 import { Component, createRef } from 'react'
 import { CallbackHandler, noCallback } from '../Callback'
 import Button from '../components/Button';
+import { DiscordMessageIn } from '../discord/discord-classes';
 import { isMemberListVisible } from './ChatContainer';
 import ChatMessage from './ChatMessage';
 
@@ -38,11 +39,11 @@ export default class ChatArea extends Component<{}, {
 }
 
 class Chat extends Component<{}, {
-    messages: any[]
+    messages: DiscordMessageIn[]
 }> {
-    _messages: any[] = []
+    _messages: DiscordMessageIn[] = []
 
-    constructor(props: {messages: any[]}) {
+    constructor(props: {messages: DiscordMessageIn[]}) {
         super(props)
         this.state = {
             messages: []
@@ -61,7 +62,7 @@ class Chat extends Component<{}, {
         })
     }
 
-    pushMessage(message: any) {
+    pushMessage(message: DiscordMessageIn) {
         this._messages.push(message)
         return this._messages
     }
@@ -83,6 +84,7 @@ class Chat extends Component<{}, {
     render() {
         const size = this.state.messages.length
         let arr = Array(size)
+
         let prevUserId
         for (let i = 0; i < size; ++i) {
             const message = this.state.messages[i]
@@ -92,10 +94,8 @@ class Chat extends Component<{}, {
                 
             }
             arr[size - i - 1] = <ChatMessage 
-            text={message.content} 
-            groupStart={groupStart} 
-            author={groupStart ? authorImage(message, userId) : undefined}
-            time={groupStart ? Date.parse(message.timestamp) : undefined}
+            message={message}
+            groupStart={groupStart}
             />
             prevUserId = userId;
         }
@@ -115,6 +115,10 @@ class Chat extends Component<{}, {
                     overflowY: 'auto',
                     position: 'fixed',
                 }}>
+                    <div style={{
+                        height: 24,
+                        color: '#ffffff00'
+                    }}>&nbsp;</div>
                     {arr}
                 </div>
             </div>
@@ -205,12 +209,13 @@ class Input extends Component<InputProps, {
                         }}
                         onKeyPress={e => {
                             if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault()
+                                
                                 const ref: HTMLTextAreaElement = this.textAreaRef.current
                                 if (!ref.textContent) return
 
                                 this.setState({input: ''})
                                 console.log(ref.textContent)
-                                e.preventDefault()
 
                                 this.submit(ref.textContent)
                             }
@@ -277,14 +282,5 @@ class EmojiButton extends Component<{}, {
                 </div>
             </div>
         )
-    }
-}
-
-function authorImage(message: any, userId=message.author.id) {
-    const avatar = message.author.avatar;
-    const image = avatar ? `https://cdn.discordapp.com/avatars/${userId}/${avatar}.webp?size=128` : `https://cdn.discordapp.com/embed/avatars/${message.author.discriminator % 5}.png`
-    return {
-        image: image,
-        name: (message.member?.nick ?? message.author.username) as string
     }
 }

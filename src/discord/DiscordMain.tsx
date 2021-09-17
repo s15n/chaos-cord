@@ -103,6 +103,5 @@ function heartbeat(sequenceId: number | null) {
         op: 1,
         d: sequenceId
     }))
-    console.log('Heartbeating...')
     return Date.now()
 }

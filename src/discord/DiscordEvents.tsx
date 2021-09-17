@@ -3,7 +3,11 @@ import { DiscordEventType } from "./discord-classes"
 import { setDiscordSessionId } from "./DiscordMain"
 
 let user
-let guilds
+let guilds: any
+
+export function getGuilds() {
+    return guilds
+}
 
 export function handleEvent(t: DiscordEventType, d: any, socket: WebSocket) {
     switch (t) {
@@ -22,6 +26,7 @@ function handleReady(d: {session_id: string, user: {username: string, discrimina
 
     user = d.user
     guilds = d.guilds
+    console.log(guilds)
 
     console.log(`Logged in as: ${user.username}#${user.discriminator}`)
 
