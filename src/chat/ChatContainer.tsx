@@ -41,7 +41,9 @@ export default class ChatContainer extends Component<{}, {
 
     render() {
         return (
-            <div id='ChatContainer' className='full-height column'>
+            <div id='ChatContainer' className='column' style={{
+                height: '100%'
+            }}>
                 <Header channelName='text'/>
                 <div className='row'>
                     <ChatArea/>

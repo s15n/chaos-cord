@@ -1,11 +1,10 @@
 import { Component, CSSProperties } from 'react'
 
 type ButtonProps = {
-    style?: CSSProperties | undefined,
+    style?: CSSProperties,
     //hover?: (over: boolean, ref: Button) => void,
-    baseColor?: any,
-    overColor?: any,
-    activeColor?: any,
+    hoverStyle?: CSSProperties,
+    activeStyle?: CSSProperties,
 
     onClick?: ButtonClickListener,
     onHover?: ButtonHoverListener,
@@ -31,31 +30,38 @@ export default class Button extends Component<ButtonProps, ButtonState> {
         }
     }
 
+    _currentHoverStyle: CSSProperties | undefined
+    _currentActiveStyle: CSSProperties | undefined
+
     render() {
         return (
             <div 
             style={{
                 cursor: 'pointer',
                 ...this.props.style,
-                color: (this.state.active
-                    ? this.props.activeColor ?? this.props.baseColor
-                    : this.state.over
-                        ? this.props.overColor ?? this.props.baseColor
-                        : this.props.baseColor) ?? this.props.style?.color
+                ...this._currentHoverStyle,
+                ...this._currentActiveStyle
             }}
             onMouseEnter={() => {
+                this._currentHoverStyle = this.props.hoverStyle
                 this.setState({ over: true })
                 this.props.onHover?.(true, this)
             }}
             onMouseLeave={() => {
+                this._currentHoverStyle = undefined
                 this.setState({ over: false })
                 this.props.onHover?.(false, this)
             }}
             onMouseDown={() => {
-                this.setState({ active: this.props.toggle ? !this.state.active : true })
+                const active = this.props.toggle ? !this.state.active : true
+                this._currentActiveStyle = active ? this.props.activeStyle : undefined
+                this.setState({ active: active })
             }}
             onMouseUp={() => {
-                if (!this.props.toggle) this.setState({ active: false })
+                if (!this.props.toggle) {
+                    this._currentActiveStyle = undefined
+                    this.setState({ active: false })
+                }
             }}
             onClick={(e) => {
                 this.props.onClick?.(e, this)

@@ -25,6 +25,10 @@ blockquote {
   padding-right: 8px;
 }
 
+#AppBar {
+  -webkit-app-region: drag;
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 8px;

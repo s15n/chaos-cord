@@ -15,3 +15,14 @@ ReactDOM.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
+
+declare global {
+  interface Window {
+    electron: {
+      ping(): void
+      windowButton(action: 'minimize' | 'maximize' | 'close'): void
+    }
+  }
+}
+
+export const { electron } = window;

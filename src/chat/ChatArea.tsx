@@ -59,6 +59,7 @@ class Chat extends Component<{}, {
             this.setState({
                 messages: this._messages
             })
+            this.fetchMessagesBefore(this._messages[0].id)
         })
     }
 
@@ -81,6 +82,21 @@ class Chat extends Component<{}, {
         messageHandler.callback = noCallback
     }
 
+    fetchMessagesBefore(id: string) {
+        fetch(`https://discord.com/api/v9/channels/581185346465824770/messages?before=${id}&limit=50`, {
+            headers: {
+                'Authorization': 'ODg3MzM4OTU4NDUzODY2NTU3.YUCs2A.XZz40Vz7W5foc3vYrrhG0Zhs6ts'
+            }
+        }).then(value => 
+            value.json()
+        ).then(messages => {
+            this._messages.unshift(...messages.reverse())
+            this.setState({
+                messages: this._messages
+            })
+        })
+    }
+
     render() {
         const size = this.state.messages.length
         let arr = Array(size)
@@ -88,6 +104,11 @@ class Chat extends Component<{}, {
         let prevUserId
         for (let i = 0; i < size; ++i) {
             const message = this.state.messages[i]
+            /*if (!message.author) {
+                console.log('No author:')
+                console.log(message)
+                continue
+            }*/
             const userId = message.author.id
             let groupStart = userId !== prevUserId
             if (!groupStart) {
@@ -105,8 +126,9 @@ class Chat extends Component<{}, {
                 height: '100%',
                 width: '100%',
             }}>
-                <div style={{
-                    height: 'calc(100% - 116px)', // 100% - 60px - 48px - 8px
+                <div 
+                style={{
+                    height: 'calc(100% - 138px)', // 100% - 60px - 48px - 8px - 22px
                     width: `calc(100% - ${isMemberListVisible() ? 557 : 317}px`, // 100% - 240px - 240px? - 72px - 5px
                     display: 'flex',
                     flex: 1,
@@ -114,7 +136,12 @@ class Chat extends Component<{}, {
                     overflowX: 'hidden',
                     overflowY: 'auto',
                     position: 'fixed',
-                }}>
+                }}
+                onScroll={e => {
+                    //console.log('---')
+                    //console.log(e)
+                }}
+                >
                     <div style={{
                         height: 24,
                         color: '#ffffff00'
@@ -183,7 +210,8 @@ class Input extends Component<InputProps, {
                             <Button style={{
                                 width: 24,
                                 height: 24,
-                            }} baseColor='#cccccc' overColor='#dddddd' activeColor='#eeeeee'>
+                                color: '#cccccc'
+                            }} hoverStyle={{ color: '#dddddd' }} activeStyle={{ color: '#eeeeee' }}>
                                 <svg width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.00098C6.486 2.00098 2 6.48698 2 12.001C2 17.515 6.486 22.001 12 22.001C17.514 22.001 22 17.515 22 12.001C22 6.48698 17.514 2.00098 12 2.00098ZM17 13.001H13V17.001H11V13.001H7V11.001H11V7.00098H13V11.001H17V13.001Z"></path></svg>
                             </Button>
                         </div>

@@ -82,7 +82,6 @@ function formattedText(text: string, message: DiscordMessageIn): any[] {
     }
 
     const mdI = prevI
-    console.log(`${text} ${mdI}`)
     prevI = 0
 
     const matches = text.matchAll(messageSpecialRegex)
