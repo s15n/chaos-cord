@@ -1,11 +1,11 @@
-import { DiscordWs } from "../DiscordWs";
+import { DiscordClient } from "../../DiscordClient";
 
 const EVENTS = {
     READY: 'ready',
     MESSAGE_CREATE: 'messageCreate'
 }
 
-type Handler = Promise<(ws: DiscordWs, d: any) => void>
+type Handler = Promise<(client: DiscordClient, d: any) => void>
 
 const handlers = new Map<DiscordEvent, Handler>()
 

@@ -1,7 +1,7 @@
 import { pushMessage } from "../../../chat/ChatArea";
-import { DiscordWs } from "../DiscordWs";
+import { DiscordClient } from "../../DiscordClient";
 
-export default function onMessageCreate(ws: DiscordWs, d: {content: string}, socket: WebSocket) {
+export default function onMessageCreate(client: DiscordClient, d: {content: string}, socket: WebSocket) {
     console.log(d)
     console.log(`Message create: ${d.content}`)
     pushMessage(d)

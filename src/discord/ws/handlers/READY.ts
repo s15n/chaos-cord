@@ -1,12 +1,13 @@
-import { DiscordWs } from "../DiscordWs";
+import { DiscordGuild } from "../../discord-classes";
+import { DiscordClient } from "../../DiscordClient";
 
-export default function onReady(ws: DiscordWs, d: {session_id: string, user: {username: string, discriminator: string}, guilds: any[]}) {
+export default function onReady(client: DiscordClient, d: {session_id: string, user: {username: string, discriminator: string}, guilds: any[]}) {
     console.log(d);
 
-    ws.sessionId = d.session_id
+    client.ws.sessionId = d.session_id
 
     const user = d.user
-    const guilds = d.guilds
+    const guilds: DiscordGuild[] = d.guilds
     console.log(guilds)
     //setGuilds(guilds)
 

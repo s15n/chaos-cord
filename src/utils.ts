@@ -9,6 +9,10 @@ export function dateToTimestampString(date: Date, isNow: boolean = false) {
     return `${num2Chars(date.getDate())}/${num2Chars(date.getMonth())}/${num2Chars(date.getFullYear())}`
 }
 
+export function dateToHHMMSS(date: Date) {
+    return `${num2Chars(date.getHours())}:${num2Chars(date.getMinutes())}:${num2Chars(date.getSeconds())}`
+}
+
 function num2Chars(n: number) {
     if (typeof(n) !== 'number') return
     const s = n.toString();

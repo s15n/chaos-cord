@@ -6,9 +6,10 @@ import ChatContainer from './chat/ChatContainer'
 import isElectron from 'is-electron'
 import Button from './components/Button'
 import { DiscordWs } from './discord/ws/DiscordWs'
+import { DiscordClient } from './discord/DiscordClient'
 
 export default class App extends Component {
-  _discordWs?: DiscordWs
+  _discordClient?: DiscordClient
 
   componentDidMount() {
     console.log('App Component did mount')
@@ -17,12 +18,12 @@ export default class App extends Component {
       console.log(window.electron)
       window.electron.ping()
     }
-    this._discordWs = new DiscordWs()
-    this._discordWs.login()
+    this._discordClient = new DiscordClient()
+    this._discordClient.login()
   }
 
   componentWillUnmount() {
-    this._discordWs?.close()
+    this._discordClient?.close()
   }
 
   render() {

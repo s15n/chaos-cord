@@ -1,11 +1,17 @@
+import { dateToHHMMSS } from "../../utils"
 import { DiscordData, DiscordSocketPayload } from "../discord-classes"
+import { DiscordClient } from "../DiscordClient"
 import { DiscordEvent, handlers, isDiscordEventType } from "./handlers/handlers"
 
 export class DiscordWs {
-    latency: number | null = null
+    readonly client: DiscordClient
 
+    constructor(client: DiscordClient) {
+        this.client = client
+    }
+
+    latency: number | null = null
     socket: WebSocket | null = null
-    
     sessionId: string | null = null
     
     _hbInterval!: number
@@ -78,7 +84,7 @@ export class DiscordWs {
         if (!isDiscordEventType(t)) return false
         const handler = handlers.get(t)
         if (!handler) return false
-        handler.then(v => v(this, d))
+        handler.then(v => v(this.client, d))
         return true
     }
     
@@ -93,7 +99,7 @@ export class DiscordWs {
             window.clearInterval(this._hbTimerId)
             //this.socket.close(1000)
         } else {
-            console.log(`Heartbeat... (${this.sessionId})`)
+            console.log(`[${dateToHHMMSS(new Date())}]: Heartbeat... (${this.sessionId})`)
             this.socket?.send(JSON.stringify({
                 op: 1,
                 d: sequenceId

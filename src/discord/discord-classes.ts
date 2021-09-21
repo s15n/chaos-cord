@@ -1,6 +1,4 @@
 //#region Socket
-export type DiscordEventType = 'READY' | 'MESSAGE_CREATE'
-
 export interface DiscordSocketPayload<D extends DiscordData> {
     op: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11
     d: D
@@ -52,6 +50,115 @@ type Browser = 'Chrome'
 //#endregion
 
 export type DiscordStatus = 'online' | 'idle' | 'dnd' | 'invisible' | 'offline'
+
+export interface DiscordGuild {
+    default_message_notifications: number
+    afk_channel_id: string | null
+    public_updates_channel_id: string | null
+    name: string
+    region: string
+    stickers: any[]
+    banner: any | null
+    description: string | null
+    splash: any | null
+    discovery_splash: any | null
+    preferred_locale: string | null
+    application_id: any | null
+    channels: DiscordChannel<DiscordChannelType>[]
+    mfa_level: number
+    guild_scheduled_events: any[]
+    icon: string | null
+    large: boolean
+    explicit_content_filter: number
+    lazy: boolean
+    joined_at: string
+    system_channel_id: string | null
+    premium_tier: number
+    verification_level: number
+    owner_id: string
+    max_video_channel_users: number
+    vanity_url_code: string | null
+    threads: any[]
+    member_count: number
+    nsfw_level: number
+    features: string[]
+    application_command_counts: any
+    afk_timeout: number | null
+    application_command_count: number
+    id: string
+    nsfw: boolean
+    stage_instances: any[]
+    rules_channel_id: string | null
+    system_channel_flags: number
+    max_members: number
+    roles: DiscordRole[]
+    premium_subscription_count: number
+    guild_hashes: any
+    emojis: any[]
+}
+
+/*
+"guild_hashes": {
+    "version": 1,
+    "roles": {
+        "omitted": false,
+        "hash": "AX47nlJn0qQ"
+    },
+    "metadata": {
+        "omitted": false,
+        "hash": "Tt2pjnCn/Ec"
+    },
+    "channels": {
+        "omitted": false,
+        "hash": "2VgDr4s2xMs"
+    }
+},
+*/
+
+type DiscordChannelType = 0 | 1 | 2 | 3 | 4
+
+interface DiscordChannel<T extends DiscordChannelType> {
+    type: T
+    topic: T extends 0 ? string | null : undefined
+    rate_limit_per_user: T extends 0 ? number : undefined
+    user_limit: T extends 2 ? number : undefined
+    rtc_region: T extends 2 ? any | null : undefined
+    position: number
+    permission_overwrites: {
+        type: number
+        id: string
+        deny: string
+        allow: string
+    }[]
+    parent_id?: string
+    name: string
+    last_message_id: T extends 0 ? string | null : undefined
+    id: string
+    bitrate: T extends 1 ? number : undefined
+}
+
+interface DiscordRole {
+    tags?: any
+    position: number
+    permissions: string
+    name: string
+    mentionable: boolean
+    managed: boolean
+    id: string
+    icon: string | null
+    hoist: boolean
+    color: number
+}
+
+interface DiscordEmoji {
+    roles: any[]
+    require_colons: boolean
+    name: string
+    managed: boolean
+    id: string
+    available: boolean
+    animated: boolean
+}
 
 export interface DiscordMessage {
 
