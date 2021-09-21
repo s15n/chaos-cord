@@ -6,7 +6,7 @@ export interface DiscordSocketPayload<D extends DiscordData> {
     d: D
 }
 
-interface DiscordData {}
+export interface DiscordData {}
 
 export interface DiscordIdentify extends DiscordData {
     capabilities: number

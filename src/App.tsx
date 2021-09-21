@@ -3,22 +3,26 @@ import './App.css'
 import Sidebar from './sidebar/Sidebar'
 import Guilds from './guildsbar/Guilds'
 import ChatContainer from './chat/ChatContainer'
-import { discordClose, discordLogin } from './discord/DiscordMain'
 import isElectron from 'is-electron'
 import Button from './components/Button'
+import { DiscordWs } from './discord/ws/DiscordWs'
 
 export default class App extends Component {
+  _discordWs?: DiscordWs
+
   componentDidMount() {
+    console.log('App Component did mount')
     if (isElectron()) {
       console.log('Electron')
       console.log(window.electron)
       window.electron.ping()
     }
-    //discordLogin()
+    this._discordWs = new DiscordWs()
+    this._discordWs.login()
   }
 
   componentWillUnmount() {
-    //discordClose()
+    this._discordWs?.close()
   }
 
   render() {

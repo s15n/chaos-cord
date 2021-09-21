@@ -114,7 +114,8 @@ class Chat extends Component<{}, {
             if (!groupStart) {
                 
             }
-            arr[size - i - 1] = <ChatMessage 
+            arr[size - i - 1] = <ChatMessage
+            key={i}
             message={message}
             groupStart={groupStart}
             />

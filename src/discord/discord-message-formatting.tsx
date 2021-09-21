@@ -1,5 +1,4 @@
 import { DiscordMessageIn } from "./discord-classes";
-import { getGuilds } from "./DiscordEvents";
 
 const messageSpecialRegex = /(?<br>\n)|(?<emoji_name>:\w+:|:[+-]1:)|(?<custom_emoji><a?:\w+:\d+>)|(?<mention><@[!&]?\d+>)|(?<channel><#\d+>)|(?<emoji>\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g
 const markdownRegex = /(?<b>\*\*(?:[^*]|\*[^*])+\*?\*\*)|(?<i>\*[^*]+\*)|(?<u>__(?:[^_]|_[^_])+__)|(?<s>~~(?:[^~]|~[^~])+~~)|(?<c>`[^`\n]+`)/g

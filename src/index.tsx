@@ -22,7 +22,8 @@ declare global {
       ping(): void
       windowButton(action: 'minimize' | 'maximize' | 'close'): void
     }
+    currentDiscordHbTimerId?: number
   }
 }
 
-export const { electron } = window;
+export const { electron, currentDiscordHbTimerId } = window;
