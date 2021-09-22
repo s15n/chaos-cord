@@ -1,3 +1,4 @@
+import { setGuilds } from "../../../guildsbar/Guilds";
 import { DiscordGuild } from "../../discord-classes";
 import { DiscordClient } from "../../DiscordClient";
 
@@ -9,7 +10,8 @@ export default function onReady(client: DiscordClient, d: {session_id: string, u
     const user = d.user
     const guilds: DiscordGuild[] = d.guilds
     console.log(guilds)
-    //setGuilds(guilds)
+    client.guilds = guilds
+    setGuilds(guilds)
 
     console.log(`Logged in as: ${user.username}#${user.discriminator}`)
 

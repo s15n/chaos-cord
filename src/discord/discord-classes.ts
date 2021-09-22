@@ -64,7 +64,7 @@ export interface DiscordGuild {
     discovery_splash: any | null
     preferred_locale: string | null
     application_id: any | null
-    channels: DiscordChannel<DiscordChannelType>[]
+    channels: DiscordChannelBase[]
     mfa_level: number
     guild_scheduled_events: any[]
     icon: string | null
@@ -115,9 +115,9 @@ export interface DiscordGuild {
 },
 */
 
-type DiscordChannelType = 0 | 1 | 2 | 3 | 4
+type DiscordChannelType = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 10 | 11 | 12 | 13
 
-interface DiscordChannel<T extends DiscordChannelType> {
+export interface DiscordChannel<T extends DiscordChannelType> {
     type: T
     topic: T extends 0 ? string | null : undefined
     rate_limit_per_user: T extends 0 ? number : undefined
@@ -136,6 +136,8 @@ interface DiscordChannel<T extends DiscordChannelType> {
     id: string
     bitrate: T extends 1 ? number : undefined
 }
+
+export type DiscordChannelBase = DiscordChannel<DiscordChannelType>
 
 interface DiscordRole {
     tags?: any

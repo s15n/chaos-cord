@@ -1,7 +1,7 @@
 import { Component, createRef } from 'react'
 import { CallbackHandler, noCallback } from '../Callback'
 import Button from '../components/Button';
-import { DiscordMessageIn } from '../discord/discord-classes';
+import { DiscordChannelBase, DiscordMessageIn } from '../discord/discord-classes';
 import { isMemberListVisible } from './ChatContainer';
 import ChatMessage from './ChatMessage';
 
@@ -14,10 +14,14 @@ export function pushMessage(message: any) {
     messageHandler.callback(message);
 }
 
-export default class ChatArea extends Component<{}, {
+type ChatAreaProps = {
+    channel?: DiscordChannelBase
+}
+
+export default class ChatArea extends Component<ChatAreaProps, {
     input: string
 }> {
-    constructor(props: {}) {
+    constructor(props: ChatAreaProps) {
         super(props)
         this.state = {
             input: ''
@@ -32,18 +36,23 @@ export default class ChatArea extends Component<{}, {
                 flexDirection: 'column-reverse'
             }}>
                 <Input input={[this.state.input, (set) => this.setState({input: set})]}/>
-                <Chat/>
+                <Chat channel={this.props.channel}/>
             </main>
         )
     }
 }
 
-class Chat extends Component<{}, {
+type ChatProps = {
+    channel?: DiscordChannelBase
+}
+
+
+class Chat extends Component<ChatProps, {
     messages: DiscordMessageIn[]
 }> {
     _messages: DiscordMessageIn[] = []
 
-    constructor(props: {messages: DiscordMessageIn[]}) {
+    constructor(props: ChatProps) {
         super(props)
         this.state = {
             messages: []

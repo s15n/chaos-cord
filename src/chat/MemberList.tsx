@@ -1,6 +1,15 @@
 import { Component } from 'react'
+import { DiscordChannelBase } from '../discord/discord-classes'
 
-export default class MemberList extends Component {
+type MemberListProps = {
+    channel?: DiscordChannelBase
+}
+
+export default class MemberList extends Component<MemberListProps> {
+    constructor(props: MemberListProps) {
+        super(props)
+    }
+
     render() {
         return (
             <aside id='MemberList' style={{

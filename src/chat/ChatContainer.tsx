@@ -3,6 +3,8 @@ import { CallbackHandler, noCallback } from '../Callback'
 import Header from './Header';
 import MemberList from './MemberList';
 import ChatArea from './ChatArea';
+import { DiscordChannelBase } from '../discord/discord-classes';
+import Library from '../library/Library';
 
 const memberListHandler: CallbackHandler<boolean> = {
     callback: noCallback
@@ -21,11 +23,14 @@ export function isMemberListVisible() {
 
 export default class ChatContainer extends Component<{}, {
     memberListVisible: boolean
+    channel?: DiscordChannelBase
+    loadMessages: boolean
 }> {
     constructor(props: {}) {
         super(props);
         this.state = {
-            memberListVisible: true
+            memberListVisible: true,
+            loadMessages: false
         }
     }
 
@@ -44,11 +49,11 @@ export default class ChatContainer extends Component<{}, {
             <div id='ChatContainer' className='column' style={{
                 height: '100%'
             }}>
-                <Header channelName='text'/>
-                <div className='row'>
-                    <ChatArea/>
+                <Header channelName={this.state.channel?.name}/>
+                {this.state.channel ? <div className='row'>
+                    <ChatArea channel={this.state.channel}/>
                     {this.state.memberListVisible ? <MemberList/> : null}
-                </div>
+                </div> : <Library/>}
             </div>
         )
     }

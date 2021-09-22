@@ -1,18 +1,65 @@
-import { Component } from 'react'
+import { Component, createRef, RefObject } from 'react'
 import './App.css'
 import Sidebar from './sidebar/Sidebar'
 import Guilds from './guildsbar/Guilds'
 import ChatContainer from './chat/ChatContainer'
 import isElectron from 'is-electron'
 import Button from './components/Button'
-import { DiscordWs } from './discord/ws/DiscordWs'
 import { DiscordClient } from './discord/DiscordClient'
+import { DiscordChannel, DiscordChannelBase, DiscordGuild } from './discord/discord-classes'
+import { CallbackHandler, noCallback } from './Callback'
+
+const selectedGuildCH: CallbackHandler<DiscordGuild | null> = {
+  callback: noCallback
+}
+export function selectGuild(guild: DiscordGuild | null) {
+  console.log(`Select Guild: ${guild?.name}`)
+  selectedGuildCH.callback(guild)
+}
+
+const selectedChannelCH: CallbackHandler<DiscordChannelBase | null> = {
+  callback: noCallback
+}
+export function selectChannel(channel: DiscordChannelBase | null) {
+  console.log(`Select Channel: ${channel?.name}`)
+  selectedChannelCH.callback(channel)
+}
 
 export default class App extends Component {
   _discordClient?: DiscordClient
 
+  constructor() {
+    super({})
+    this.sidebar = createRef()
+    this.chat = createRef()
+  }
+
+  sidebar: RefObject<Sidebar>
+  chat: RefObject<ChatContainer>
+
+  _selectedGuild: DiscordGuild | null = null
+  _selectedChannel: DiscordChannelBase | null = null
+
   componentDidMount() {
     console.log('App Component did mount')
+
+    selectedGuildCH.callback = guild => {
+      this._selectedGuild = guild
+      this.sidebar.current?.setState({
+        selectedGuild: guild ?? undefined
+      })
+      if (guild === null) selectChannel(null)
+    }
+    selectedChannelCH.callback = channel => {
+      this._selectedChannel = channel
+      this.sidebar.current?.setState({
+        selectedChannel: channel ?? undefined
+      })
+      this.chat.current?.setState({
+        channel: channel ?? undefined
+      })
+    }
+
     if (isElectron()) {
       console.log('Electron')
       console.log(window.electron)
@@ -23,6 +70,9 @@ export default class App extends Component {
   }
 
   componentWillUnmount() {
+    selectedGuildCH.callback = noCallback
+    selectedChannelCH.callback = noCallback
+
     this._discordClient?.close()
   }
 
@@ -34,8 +84,8 @@ export default class App extends Component {
           height: isElectron() ? 'calc(100% - 22px)' : '100%',
         }}>
           <Guilds/>
-          <Sidebar/>
-          <ChatContainer/>
+          <Sidebar ref={this.sidebar}/>
+          <ChatContainer ref={this.chat}/>
         </div>
       </div>
     )
