@@ -4,7 +4,7 @@ import { DiscordMessageIn } from "./discord-classes";
 import { DiscordClient } from "./DiscordClient";
 import Embed from "./Embed";
 
-const messageSpecialRegex = /(?<br>\n)|(?<a>https?:\/\/([\w-\/]+\.)*[\w-\/]+)|(?<emoji_name>:\w+:|:[+-]1:)|(?<custom_emoji><a?:\w+:\d+>)|(?<mention><@[!&]?\d+>)|(?<channel><#\d+>)|(?<emoji>\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g
+const messageSpecialRegex = /(?<br>\n)|(?<a>https?:\/\/([\w-\/:%\d]+\.)*[\w-\/%\d]+)|(?<emoji_name>:\w+:|:[+-]1:)|(?<custom_emoji><a?:\w+:\d+>)|(?<mention><@[!&]?\d+>)|(?<channel><#\d+>)|(?<emoji>\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g
 const markdownRegex = /(?<b>\*\*(?:[^*]|\*[^*])+\*?\*\*)|(?<i>\*[^*]+\*)|(?<u>__(?:[^_]|_[^_])+__)|(?<s>~~(?:[^~]|~[^~])+~~)|(?<c>`[^`\n]+`)/g
 // |(?<q>(?<![^\n])>\s\w+\n?)
 
@@ -13,6 +13,23 @@ const ChatMessageContent = ({message}: {message: DiscordMessageIn}) => {
 
     const textResult = text ? formattedText(text, message) : null
     const embedResult = message.embeds.map((embed, index) => <Embed key={index} embed={embed} messageRef={message}/>)
+    const attachments: any[] = []
+    message.attachments.forEach((att, index) => {
+        console.log(att)
+        if (att.content_type?.startsWith('image/'))
+        attachments.push(
+            <div key={index} style={{
+                marginTop: 2,
+                marginBottom: 2
+            }}>
+                <img src={att.url} alt={att.filename} style={{
+                    maxWidth: 400,
+                    maxHeight: 400,
+                    borderRadius: 4
+                }}/>
+            </div>
+        )
+    })
 
     return (
         <div className='text message-text' style={{
@@ -20,6 +37,7 @@ const ChatMessageContent = ({message}: {message: DiscordMessageIn}) => {
         }}>
             {textResult}
             {embedResult}
+            {attachments.length > 0 ? attachments : null}
         </div>
     );
 }

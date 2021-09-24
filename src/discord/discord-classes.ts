@@ -177,7 +177,7 @@ export interface DiscordMessageIn {
     })[]
     mention_roles: string[]
     mention_everyone: boolean
-    member: DiscordMemberPartial
+    member?: DiscordMemberPartial
     id: string
     flags: number
     embeds: DiscordEmbed[]
@@ -186,7 +186,7 @@ export interface DiscordMessageIn {
     components: any[]
     channel_id: string
     author: DiscordUserPartial
-    attachments: any[]
+    attachments: DiscordAttachment[]
     guild_id: string
 }
 
@@ -247,6 +247,18 @@ export interface DiscordEmbedField {
     value: string
     name: string
     inline: boolean
+}
+
+export interface DiscordAttachment {
+    id: string
+    filename: string
+    content_type: string
+    size: number
+    url: string
+    proxy_url?: string
+    height?: number | null
+    width?: number | null
+    ephemeral?: boolean
 }
 
 export interface DiscordUserPartial {
