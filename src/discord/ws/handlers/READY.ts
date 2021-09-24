@@ -10,7 +10,7 @@ export default function onReady(client: DiscordClient, d: {session_id: string, u
     const user = d.user
     const guilds: DiscordGuild[] = d.guilds
     console.log(guilds)
-    client.guilds = guilds
+    client.setGuilds(guilds)
     setGuilds(guilds)
 
     console.log(`Logged in as: ${user.username}#${user.discriminator}`)

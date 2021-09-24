@@ -1,22 +1,26 @@
+import { currentClient } from "../App";
+import { colorIntToCss } from "../utils";
 import { DiscordMessageIn } from "./discord-classes";
+import { DiscordClient } from "./DiscordClient";
+import Embed from "./Embed";
 
-const messageSpecialRegex = /(?<br>\n)|(?<emoji_name>:\w+:|:[+-]1:)|(?<custom_emoji><a?:\w+:\d+>)|(?<mention><@[!&]?\d+>)|(?<channel><#\d+>)|(?<emoji>\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g
+const messageSpecialRegex = /(?<br>\n)|(?<a>https?:\/\/([\w-\/]+\.)*[\w-\/]+)|(?<emoji_name>:\w+:|:[+-]1:)|(?<custom_emoji><a?:\w+:\d+>)|(?<mention><@[!&]?\d+>)|(?<channel><#\d+>)|(?<emoji>\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g
 const markdownRegex = /(?<b>\*\*(?:[^*]|\*[^*])+\*?\*\*)|(?<i>\*[^*]+\*)|(?<u>__(?:[^_]|_[^_])+__)|(?<s>~~(?:[^~]|~[^~])+~~)|(?<c>`[^`\n]+`)/g
 // |(?<q>(?<![^\n])>\s\w+\n?)
-
-const emojiSubst: any = {
-    '+1': '1f44d'
-}
 
 const ChatMessageContent = ({message}: {message: DiscordMessageIn}) => {
     const text = message.content?.trim()
 
     const textResult = text ? formattedText(text, message) : null
+    const embedResult = message.embeds.map((embed, index) => <Embed key={index} embed={embed} messageRef={message}/>)
 
     return (
         <div className='text message-text' style={{
             marginBottom: 3,
-        }}>{textResult}</div>
+        }}>
+            {textResult}
+            {embedResult}
+        </div>
     );
 }
 
@@ -103,6 +107,11 @@ function formattedText(text: string, message: DiscordMessageIn): any[] {
             if (groups.br) {
                 result.push(<br/>)
                 length = 1
+            } else if (groups.a) {
+                const l = groups.a.length
+                const href = text.substring(i, i + l)
+                result.push(<a href={href} target='_blank'>{href}</a>)
+                length = l
             } else if (groups.emoji) {
                 const id = text.codePointAt(i)
                 if (id === undefined) continue
@@ -123,13 +132,13 @@ function formattedText(text: string, message: DiscordMessageIn): any[] {
                 const mention = groups.mention
                 const type = mention[2] === '!' ? 'nick' : mention[2] === '&' ? 'role' : 'user'
                 const id = mention.slice(type !== 'user' ? 3 : 2, -1)
-                const target: any = type === 'role' ? message.mention_roles.includes(id) : message.mentions.find(m => m.id === id)
+                const target: any = type === 'role' ? (message.mention_roles.includes(id) ? DiscordClient.getRole(currentClient()?.getGuild(message.guild_id), id) : undefined) : message.mentions.find(m => m.id === id)
                 if (target) {
                     result.push(<Mention before='@' text={
                         type === 'role' 
-                        ? `&${id}`
+                        ? target?.name
                         : (type === 'nick' ? target.member?.nick : undefined) ?? target.username
-                    } color={type === 'role' ? '#ffe7   7f' : undefined}/>)
+                    } color={type === 'role' && target ? colorIntToCss(target.color) : undefined}/>)
                     length = mention.length
                 }
             } else if (groups.channel) {
@@ -153,10 +162,12 @@ function formattedText(text: string, message: DiscordMessageIn): any[] {
     return result
 }
 
+export { formattedText as discordFormattedText }
+
 const Emoji = ({url, id}: { url: string, id?: never } | { id: string, url?: never }) => (
-    <img src={url ?? `https://abs-0.twimg.com/emoji/v2/svg/${id}.svg`} alt='E' style={{
-        width: 22,
-        height: 22,
+    <img src={url ?? `https://abs-0.twimg.com/emoji/v2/svg/${id}.svg`} alt=" " style={{
+        width: '1.3em',
+        height: '1.3em',
         marginBottom: -5,
         marginLeft: 1,
         marginRight: 1
@@ -177,33 +188,9 @@ const Mention = ({before, text, color}: {before: any, text: string, color?: stri
     </span>
 )
 
-const ChatMessageDivider = ({date}: {date: number}) => (
-    <div style={{
-        width: '100%',
-        height: 0,
-        marginLeft: 16,
-        marginRight: 14,
-        marginTop: 24,
-        marginBottom: 8,
-        borderTopWidth: 1,
-        borderTopColor: 'rgba(255, 255, 255, 0.06)'
-    }}>
-        <span style={{
-            marginTop: -11,
-            height: 13,
-            alignSelf: "center",
-            paddingLeft: 4,
-            paddingRight: 4,
-            paddingTop: 2,
-            paddingBottom: 2,
-            fontSize: '12px',
-            fontWeight: 600,
-            color: '#777777',
-            backgroundColor: '#272727'
-        }}>
-            {/*dateToDateString(date)*/'1 January 1970'}
-        </span>
-    </div>
-)
-
 export default ChatMessageContent
+
+const emojiSubst: any = {
+    '+1': '1f44d',
+    'scroll': '1f4dc'
+}

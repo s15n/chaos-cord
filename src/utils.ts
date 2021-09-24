@@ -26,3 +26,7 @@ export function dateToDateString(date: Date) {
 }
 
 const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
+export function colorIntToCss(color: number) {
+    return `rgb(${color % (256 * 256 * 256) / (256 * 256)}, ${color % (256 * 256) / 256}, ${color % 256})`
+}

@@ -26,10 +26,16 @@ export function selectChannel(channel: DiscordChannelBase | null) {
   selectedChannelCH.callback(channel)
 }
 
+let client: DiscordClient | undefined = undefined
+
+export function currentClient() {
+  return client
+}
+
 
 const keyListener = (e: KeyboardEvent) => {
-  console.log(e)
-  console.log(e.ctrlKey)
+  //console.log(e)
+  //console.log(e.ctrlKey)
   if (e.code === 'KeyR' && e.ctrlKey) window.electron.reloadPage()
   else if (e.code === 'KeyI' && e.ctrlKey && e.shiftKey) window.electron.devTools()
 }
@@ -38,7 +44,7 @@ export default class App extends Component<{}, {
   selectedGuild: DiscordGuild | null
   selectedChannel: DiscordChannelBase | null
 }> {
-  _discordClient?: DiscordClient
+  private discordClient?: DiscordClient
 
   constructor(props: {}) {
     super(props)
@@ -64,8 +70,9 @@ export default class App extends Component<{}, {
       console.log(window.electron)
       window.electron.ping()
     }
-    this._discordClient = new DiscordClient()
-    this._discordClient.login()
+    this.discordClient = new DiscordClient()
+    client = this.discordClient
+    this.discordClient.login()
   }
 
   componentWillUnmount() {
@@ -74,7 +81,8 @@ export default class App extends Component<{}, {
     selectedGuildCH.callback = noCallback
     selectedChannelCH.callback = noCallback
 
-    this._discordClient?.close()
+    this.discordClient?.close()
+    client = undefined
   }
 
   render() {

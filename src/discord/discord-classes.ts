@@ -139,7 +139,7 @@ export interface DiscordChannel<T extends DiscordChannelType> {
 
 export type DiscordChannelBase = DiscordChannel<DiscordChannelType>
 
-interface DiscordRole {
+export interface DiscordRole {
     tags?: any
     position: number
     permissions: string
@@ -207,7 +207,46 @@ export interface DiscordMember extends DiscordMemberPartial {
 }
 
 export interface DiscordEmbed {
+    title?: string
+    type?: 'rich' | 'image' | 'video' | 'gifv' | 'article' | 'link'
+    footer?: {
+        text: string
+        icon_url?: string
+        icon_proxy_url?: string
+    }
+    fields?: DiscordEmbedField[]
+    description?: string
+    color?: number
+    author?: {
+        name: string
+        icon_url?: string
+        icon_proxy_url?: string
+    }
+    thumbnail?: {
+        url: string
+        width?: number
+        height?: number
+        proxy_url?: string
+    }
+    image?: {
+        url: string
+        width?: number
+        height?: number
+        proxy_url?: string
+    }
+    video?: {
+        url: string
+        width?: number
+        height?: number
+        proxy_url?: string
+    }
+    url?: string
+}
 
+export interface DiscordEmbedField {
+    value: string
+    name: string
+    inline: boolean
 }
 
 export interface DiscordUserPartial {

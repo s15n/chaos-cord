@@ -2,6 +2,7 @@ import { Component, createRef } from 'react'
 import { CallbackHandler, noCallback } from '../Callback'
 import Button from '../components/Button';
 import { DiscordChannelBase, DiscordMessageIn } from '../discord/discord-classes';
+import { dateToDateString } from '../utils';
 import { isMemberListVisible } from './ChatContainer';
 import ChatMessage from './ChatMessage';
 
@@ -29,6 +30,7 @@ export default class ChatArea extends Component<ChatAreaProps, {
     }
 
     render() {
+        //if (this.props.newChannel) console.log('New Channel sel.')
         return (
             <main style={{
                 display: 'flex',
@@ -46,35 +48,46 @@ type ChatProps = {
     channel?: DiscordChannelBase
 }
 
-
 class Chat extends Component<ChatProps, {
     messages: DiscordMessageIn[]
 }> {
-    _messages: DiscordMessageIn[] = []
+    private currentChannel = this.props.channel
+
+    private channelId = this.props.channel?.id
+    private messages: DiscordMessageIn[] = []
+
+    private fetchPaused = false
+    private prevScroll = {
+        height: 0,
+        top: 0
+    }
 
     constructor(props: ChatProps) {
         super(props)
         this.state = {
             messages: []
         }
-        fetch('https://discord.com/api/v9/channels/581185346465824770/messages?limit=50', {
+    }
+
+    loadLatestMessages() {
+        console.log(`Loading Messages: ${this.channelId}`)
+        fetch(`https://discord.com/api/v9/channels/${this.channelId}/messages?limit=50`, {
             headers: {
                 'Authorization': 'ODg3MzM4OTU4NDUzODY2NTU3.YUCs2A.XZz40Vz7W5foc3vYrrhG0Zhs6ts'
             }
         }).then(value => 
             value.json()
         ).then(messages => {
-            this._messages = messages.reverse()
+            this.messages = messages.reverse()
             this.setState({
-                messages: this._messages
+                messages: this.messages
             })
-            this.fetchMessagesBefore(this._messages[0].id)
         })
     }
 
     pushMessage(message: DiscordMessageIn) {
-        this._messages.push(message)
-        return this._messages
+        this.messages.push(message)
+        return this.messages
     }
 
     componentDidMount() {
@@ -92,25 +105,34 @@ class Chat extends Component<ChatProps, {
     }
 
     fetchMessagesBefore(id: string) {
-        fetch(`https://discord.com/api/v9/channels/581185346465824770/messages?before=${id}&limit=50`, {
+        fetch(`https://discord.com/api/v9/channels/${this.channelId}/messages?before=${id}&limit=50`, {
             headers: {
                 'Authorization': 'ODg3MzM4OTU4NDUzODY2NTU3.YUCs2A.XZz40Vz7W5foc3vYrrhG0Zhs6ts'
             }
         }).then(value => 
             value.json()
         ).then(messages => {
-            this._messages.unshift(...messages.reverse())
+            this.messages.unshift(...messages.reverse())
             this.setState({
-                messages: this._messages
+                messages: this.messages
             })
         })
     }
 
     render() {
+        const newChannel = this.props.channel?.id !== this.currentChannel?.id
+        if (newChannel) {
+            this.currentChannel = this.props.channel
+            this.channelId = this.currentChannel?.id
+            this.loadLatestMessages()
+        }
+
         const size = this.state.messages.length
-        let arr = Array(size)
+        const arr = Array(size)
 
         let prevUserId
+        //let lastMessage
+        let prevTime: any//: { day: string, timestamp: number } | undefined = undefined
         for (let i = 0; i < size; ++i) {
             const message = this.state.messages[i]
             /*if (!message.author) {
@@ -120,15 +142,27 @@ class Chat extends Component<ChatProps, {
             }*/
             const userId = message.author.id
             let groupStart = userId !== prevUserId
-            if (!groupStart) {
-                
+            const time = new Date(message.timestamp)
+            //const timeDiff = lastMessage ? new Date(message.timestamp).getTime() - new Date(lastMessage.timestamp).getTime() : undefined
+            const day = `${time.getDate()}.${time.getMonth()}.${time.getFullYear()}`
+            const separator = day !== prevTime?.day
+            if (separator) {
+                groupStart = true
+                arr.unshift(<ChatMessageDivider date={time}/>)
             }
-            arr[size - i - 1] = <ChatMessage
+            if (!groupStart) {
+                if (prevTime && (time.getTime() - prevTime.timestamp) > 600000) groupStart = true
+            }
+            arr.unshift(<ChatMessage
             key={i}
             message={message}
             groupStart={groupStart}
-            />
-            prevUserId = userId;
+            />)
+            prevUserId = userId
+            prevTime = {
+                day: day,
+                timestamp: time.getTime()
+            }
         }
 
         return (
@@ -147,9 +181,25 @@ class Chat extends Component<ChatProps, {
                     overflowY: 'auto',
                     position: 'fixed',
                 }}
-                onScroll={e => {
-                    //console.log('---')
-                    //console.log(e)
+                onScroll={event => {
+                    const target = event.target as HTMLDivElement
+                    let onTop = target.scrollTop <= 20 + target.clientHeight - target.scrollHeight + 1
+                    if (this.prevScroll.height < target.scrollHeight) {
+                        target.scrollTop = this.prevScroll.top
+                        this.fetchPaused = false
+                        onTop = false
+                    }
+                    if (onTop) {
+                        if (!this.fetchPaused) {
+                            this.fetchPaused = true
+                            console.log('Fetching messages...')
+                            this.fetchMessagesBefore(this.messages[0].id)
+                        }
+                    }
+                    this.prevScroll = {
+                        height: target.scrollHeight,
+                        top: target.scrollTop
+                    }
                 }}
                 >
                     <div style={{
@@ -162,6 +212,36 @@ class Chat extends Component<ChatProps, {
         )
     }
 }
+
+const ChatMessageDivider = ({date}: {date: Date}) => (
+    <div style={{
+        width: '100%',
+        height: 1,
+        marginLeft: 16,
+        marginRight: 14,
+        marginTop: 24,
+        marginBottom: 8,
+        backgroundColor: 'rgba(255, 255, 255, 0.06)',
+        display: 'inherit',
+        justifyContent: 'center'
+    }}>
+        <span style={{
+            marginTop: -11,
+            height: 13,
+            //alignSelf: "center",
+            paddingLeft: 4,
+            paddingRight: 4,
+            paddingTop: 2,
+            paddingBottom: 2,
+            fontSize: '12px',
+            fontWeight: 600,
+            color: '#777777',
+            backgroundColor: '#272727'
+        }}>
+            {dateToDateString(date)}
+        </span>
+    </div>
+)
 
 type InputProps = {
     input: [string, (set: string) => void]

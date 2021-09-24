@@ -30,7 +30,7 @@ export default class ChatContainer extends Component<ChatContainerProps, {
     loadMessages: boolean
 }> {
     constructor(props: ChatContainerProps) {
-        super(props);
+        super(props)
         this.state = {
             memberListVisible: true,
             loadMessages: false
@@ -48,6 +48,7 @@ export default class ChatContainer extends Component<ChatContainerProps, {
     }
 
     render() {
+        console.log('Re-Rendering Chat Container')
         return (
             <div id='ChatContainer' className='column' style={{
                 height: '100%'

@@ -1,5 +1,5 @@
 /* width */
-::-webkit-scrollbar {
+#Guilds::-webkit-scrollbar {
   width: 0px;
   margin-top: 5px;
 }
