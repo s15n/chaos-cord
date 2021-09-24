@@ -12,12 +12,16 @@ export function setGuilds(guilds: DiscordGuild[]) {
     guildsCallback.callback(guilds)
 }
 
+type GuildsProps = {
+    selectedGuild: DiscordGuild | null
+}
+
 type GuildsState = {
     guilds: DiscordGuild[]
 }
 
-export default class Guilds extends Component<{}, GuildsState> {
-    constructor(props: {}) {
+export default class Guilds extends Component<GuildsProps, GuildsState> {
+    constructor(props: GuildsProps) {
         super(props)
         this.state = {
             guilds: []
@@ -38,7 +42,7 @@ export default class Guilds extends Component<{}, GuildsState> {
 
     _guildsComponents() {
         const guilds: any[] = [
-            <GuildIcon key="-1"/>,
+            <GuildIcon key="-1" selected={this.props.selectedGuild === null}/>,
             <div style={{
                 width: 32,
                 height: 2,
@@ -49,7 +53,7 @@ export default class Guilds extends Component<{}, GuildsState> {
         ]
         this.state.guilds.forEach((guild, index) => {
             guilds.push(
-                <GuildIcon key={index} guild={guild}/>
+                <GuildIcon key={index} guild={guild} selected={this.props.selectedGuild === guild}/>
             )
         })
         return guilds
@@ -72,10 +76,11 @@ export default class Guilds extends Component<{}, GuildsState> {
 
 class GuildIcon extends Component<{
     guild?: DiscordGuild
+    selected: boolean
 }, {
     hover: boolean
 }> {
-    constructor(props: {guild?: DiscordGuild}) {
+    constructor(props: { guild?: DiscordGuild, selected: boolean }) {
         super(props)
         this.state = {
             hover: false
@@ -98,8 +103,8 @@ class GuildIcon extends Component<{
             <div style={{
                 width: '100%',
                 height: '100%',
-                borderRadius: this.state.hover ? 18 : 24,
-                backgroundColor: this.state.hover ? '#4e5d94' : '#7f7f7f7f',
+                borderRadius: this.props.selected || this.state.hover ? 18 : 24,
+                backgroundColor: this.props.selected || this.state.hover ? '#4e5d94' : '#7f7f7f7f',
                 color: '#cccccc',
                 //marginTop: 14
             }}>
@@ -122,13 +127,14 @@ class GuildIcon extends Component<{
                     overflow: 'hidden'
                 }}>
                     <div style={{
-                        width: 8,
-                        height: this.state.hover ? 18 : 0,
-                        marginTop: this.state.hover ? 15 : 0,
+                        width: 4,
+                        marginRight: 4,
+                        height: this.props.selected ? 48 : this.state.hover ? 18 : 0,
+                        marginTop: this.props.selected ? 0 : this.state.hover ? 15 : 0,
                         borderTopRightRadius: 8,
                         borderBottomRightRadius: 8,
                         backgroundColor: '#bbbbbb',
-                        float: 'left'
+                        float: 'left',
                     }}>
                     </div>
                     <div 
@@ -141,7 +147,9 @@ class GuildIcon extends Component<{
                     }}
                     onMouseEnter={() => this.setState({ hover: true })}
                     onMouseLeave={() => this.setState({ hover: false })}
-                    onMouseDown={() => { selectGuild(this.props.guild ?? null) }}
+                    onMouseDown={() => {
+                        selectGuild(this.props.guild ?? null)
+                     }}
                     >
                         {this._image()}
                     </div>

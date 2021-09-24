@@ -29,6 +29,13 @@ blockquote {
   -webkit-app-region: drag;
 }
 
+.Game {
+  display: inline-block;
+  cursor: pointer;
+  color: #ffffff;
+  border-radius: 15px;
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 8px;

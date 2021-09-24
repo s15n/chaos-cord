@@ -1,14 +1,16 @@
 import { Component, memo } from 'react'
 import { DiscordChannelBase, DiscordGuild } from '../discord/discord-classes'
 import Channels from './Channels'
+import MainPage from './MainPage'
 
-export default class Sidebar extends Component<{}, {
-    selectedGuild?: DiscordGuild
-    selectedChannel?: DiscordChannelBase
-}> {
-    constructor(props: {}) {
+type SidebarProps = {
+    selectedGuild: DiscordGuild | null
+    selectedChannel: DiscordChannelBase | null
+}
+
+export default class Sidebar extends Component<SidebarProps> {
+    constructor(props: SidebarProps) {
         super(props)
-        this.state = {}
     }
 
     render() {
@@ -40,7 +42,7 @@ export default class Sidebar extends Component<{}, {
                             fontWeight: 500,
                             fontSize: 15
                         }}>
-                            {this.state.selectedGuild?.name}
+                            {this.props.selectedGuild?.name}
                         </h1>
                     </div>
                     <div style={{
@@ -48,15 +50,11 @@ export default class Sidebar extends Component<{}, {
                         height: 2,
                         backgroundColor: '#131313'
                     }}/>
-                    {this.state.selectedGuild ? <Channels guild={this.state.selectedGuild} selectedChannel={this.state.selectedChannel}/> : <>
-                    <div style={{
-                        marginLeft: 8,
-                        paddingTop: 1,
-                        paddingBottom: 1
-                    }}>
-                        
-                    </div>
-                    </>}
+                    {
+                    this.props.selectedGuild
+                    ? <Channels guild={this.props.selectedGuild} selectedChannel={this.props.selectedChannel ?? undefined}/>
+                    : <MainPage/>
+                    }
                 </nav>
                 <UserInfo/>
             </div>

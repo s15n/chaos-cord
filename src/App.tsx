@@ -6,7 +6,7 @@ import ChatContainer from './chat/ChatContainer'
 import isElectron from 'is-electron'
 import Button from './components/Button'
 import { DiscordClient } from './discord/DiscordClient'
-import { DiscordChannel, DiscordChannelBase, DiscordGuild } from './discord/discord-classes'
+import { DiscordChannelBase, DiscordGuild } from './discord/discord-classes'
 import { CallbackHandler, noCallback } from './Callback'
 
 const selectedGuildCH: CallbackHandler<DiscordGuild | null> = {
@@ -14,6 +14,7 @@ const selectedGuildCH: CallbackHandler<DiscordGuild | null> = {
 }
 export function selectGuild(guild: DiscordGuild | null) {
   console.log(`Select Guild: ${guild?.name}`)
+  selectChannel(guild?.channels[0] ?? null) // TODO
   selectedGuildCH.callback(guild)
 }
 
@@ -25,39 +26,37 @@ export function selectChannel(channel: DiscordChannelBase | null) {
   selectedChannelCH.callback(channel)
 }
 
-export default class App extends Component {
+
+const keyListener = (e: KeyboardEvent) => {
+  console.log(e)
+  console.log(e.ctrlKey)
+  if (e.code === 'KeyR' && e.ctrlKey) window.electron.reloadPage()
+  else if (e.code === 'KeyI' && e.ctrlKey && e.shiftKey) window.electron.devTools()
+}
+
+export default class App extends Component<{}, {
+  selectedGuild: DiscordGuild | null
+  selectedChannel: DiscordChannelBase | null
+}> {
   _discordClient?: DiscordClient
 
-  constructor() {
-    super({})
-    this.sidebar = createRef()
-    this.chat = createRef()
+  constructor(props: {}) {
+    super(props)
+    this.state = {
+      selectedGuild: null,
+      selectedChannel: null
+    }
   }
-
-  sidebar: RefObject<Sidebar>
-  chat: RefObject<ChatContainer>
-
-  _selectedGuild: DiscordGuild | null = null
-  _selectedChannel: DiscordChannelBase | null = null
 
   componentDidMount() {
     console.log('App Component did mount')
+    window.addEventListener('keypress', keyListener)
 
     selectedGuildCH.callback = guild => {
-      this._selectedGuild = guild
-      this.sidebar.current?.setState({
-        selectedGuild: guild ?? undefined
-      })
-      if (guild === null) selectChannel(null)
+      this.setState({ selectedGuild: guild })
     }
     selectedChannelCH.callback = channel => {
-      this._selectedChannel = channel
-      this.sidebar.current?.setState({
-        selectedChannel: channel ?? undefined
-      })
-      this.chat.current?.setState({
-        channel: channel ?? undefined
-      })
+      this.setState({ selectedChannel: channel })
     }
 
     if (isElectron()) {
@@ -70,6 +69,8 @@ export default class App extends Component {
   }
 
   componentWillUnmount() {
+    window.removeEventListener('keypress', keyListener)
+
     selectedGuildCH.callback = noCallback
     selectedChannelCH.callback = noCallback
 
@@ -83,9 +84,9 @@ export default class App extends Component {
         <div className='row' style={{
           height: isElectron() ? 'calc(100% - 22px)' : '100%',
         }}>
-          <Guilds/>
-          <Sidebar ref={this.sidebar}/>
-          <ChatContainer ref={this.chat}/>
+          <Guilds selectedGuild={this.state.selectedGuild}/>
+          <Sidebar selectedGuild={this.state.selectedGuild} selectedChannel={this.state.selectedChannel}/>
+          <ChatContainer selectedChannel={this.state.selectedChannel}/>
         </div>
       </div>
     )

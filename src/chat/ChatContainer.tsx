@@ -21,12 +21,15 @@ export function isMemberListVisible() {
     return memberListVisible
 }
 
-export default class ChatContainer extends Component<{}, {
+type ChatContainerProps = {
+    selectedChannel: DiscordChannelBase | null
+}
+
+export default class ChatContainer extends Component<ChatContainerProps, {
     memberListVisible: boolean
-    channel?: DiscordChannelBase
     loadMessages: boolean
 }> {
-    constructor(props: {}) {
+    constructor(props: ChatContainerProps) {
         super(props);
         this.state = {
             memberListVisible: true,
@@ -49,9 +52,9 @@ export default class ChatContainer extends Component<{}, {
             <div id='ChatContainer' className='column' style={{
                 height: '100%'
             }}>
-                <Header channelName={this.state.channel?.name}/>
-                {this.state.channel ? <div className='row'>
-                    <ChatArea channel={this.state.channel}/>
+                <Header channelName={this.props.selectedChannel?.name}/>
+                {this.props.selectedChannel ? <div className='row'>
+                    <ChatArea channel={this.props.selectedChannel}/>
                     {this.state.memberListVisible ? <MemberList/> : null}
                 </div> : <Library/>}
             </div>

@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import isElectron from 'is-electron';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -21,9 +22,17 @@ declare global {
     electron: {
       ping(): void
       windowButton(action: 'minimize' | 'maximize' | 'close'): void
+      openGameUrl(url: string): void
+      devTools(): void
+      reloadPage(): void
     }
     currentDiscordHbTimerId?: number
   }
 }
 
 export const { electron, currentDiscordHbTimerId } = window;
+
+export function openGameUrl(url: string) {
+  if (isElectron()) window.electron.openGameUrl(url)
+  else window.open(url)
+}
