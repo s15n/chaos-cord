@@ -2,6 +2,27 @@ import { Component, createRef, RefObject } from 'react'
 import { openGameUrl } from '..'
 
 export default class Library extends Component {
+    apps: any[] = []
+    componentDidMount() {
+        fetch(`https://discord.com/api/v9/users/@me/library`, {
+            headers: {
+                'Authorization': window.localStorage.getItem('token')!
+            }
+        })
+
+        fetch(`https://discord.com/api/v9/applications/detectable`, {
+            headers: {
+                'Authorization': window.localStorage.getItem('token')!
+            }
+        }).then(value => 
+            value.json()
+        ).then(apps => {
+            if (!Array.isArray(apps)) return
+            this.apps = apps
+            console.log(apps)
+        })
+    }
+
     render() {
         return (
             <div style={{

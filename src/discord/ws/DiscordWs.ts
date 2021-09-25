@@ -1,5 +1,5 @@
 import { dateToHHMMSS } from "../../utils"
-import { DiscordData, DiscordSocketPayload } from "../discord-classes"
+import { DiscordData, DiscordIdentify, DiscordResume, DiscordSocketPayload, OPOut } from "../discord-classes"
 import { DiscordClient } from "../DiscordClient"
 import { DiscordEvent, handlers, isDiscordEventType } from "./handlers/handlers"
 
@@ -19,7 +19,7 @@ export class DiscordWs {
     _lastHb!: number
     _sequenceId: number | null = null
     
-    login(resume: boolean = false) {
+    login(token: string, resume: boolean = false) {
         console.log(resume ? 'Resuming...': 'Discord login start')
     
         const socket = new WebSocket('wss://gateway.discord.gg/?v=9&encoding=json') //TODO: get gateway
@@ -30,9 +30,9 @@ export class DiscordWs {
         })
     
         socket.addEventListener('close', event => {
-            console.log('Discord WS Closed')
+            console.warn(`Discord WS Closed! "${event.reason}", Code: ${event.code}`)
             window.clearInterval(this._hbTimerId)
-            if (event.code !== 1000) this.login(true)
+            if (event.code !== 1000) this.login(token, true)
         })
     
         socket.addEventListener('message', event => {
@@ -49,7 +49,7 @@ export class DiscordWs {
     
             switch (op) {
             case 10:
-                this._handleHello(resume, d)
+                this._handleHello(token, resume, d)
                 break
             case 11:
                     this.latency = Date.now() - this._lastHb
@@ -57,12 +57,12 @@ export class DiscordWs {
                     break
             case 0:
                 this._sequenceId = s
-                if (!this._handleEvent(t, d, this.socket!)) this._logUnknownEvent(object)
+                if (!this._handleEvent(t, d)) this._logUnknownEvent(object)
                 break
             case 7:
             case 9:
                 //this.close()
-                this.login(true)
+                this.login(token, true)
                 break
             default:
                 this._logUnknownEvent(object)
@@ -76,11 +76,16 @@ export class DiscordWs {
         this.socket.close(1000)
     }
 
-    send<D extends DiscordData>(data: DiscordSocketPayload<D>) {
-        this.socket?.send(data.toString())
+    send<OP extends OPOut>(op: OP, data: DiscordData<OP>) {
+        const payload = JSON.stringify({
+            op: op,
+            d: data
+        })
+        console.log(`>>> ${payload}`)
+        this.socket?.send(payload)
     }
 
-    _handleEvent(t: string, d: any, socket: WebSocket) {
+    _handleEvent(t: string, d: any) {
         if (!isDiscordEventType(t)) return false
         const handler = handlers.get(t)
         if (!handler) return false
@@ -108,7 +113,7 @@ export class DiscordWs {
         return Date.now()
     }
 
-    _handleHello(resume: boolean, d: { heartbeat_interval: number }) {
+    _handleHello(token: string, resume: boolean, d: { heartbeat_interval: number }) {
         // Manage heartbeats
         this._hbInterval = d.heartbeat_interval
         console.log(`Heartbeat interval: ${this._hbInterval}`)
@@ -121,31 +126,25 @@ export class DiscordWs {
         // Identify
         if (!resume) {
             console.log('Identifying')
-            this.socket?.send(JSON.stringify({
-                op: 2,
-                d: {
-                    token: 'ODg3MzM4OTU4NDUzODY2NTU3.YUCs2A.XZz40Vz7W5foc3vYrrhG0Zhs6ts',
-                    capabilities: 125,
-                    presence: {
-                        activities: [],
-                        afk: false,
-                        status: 'online'
-                    },
-                    properties: {
-                        os: 'Windows',
-                        browser: 'Chrome'
-                    }
+            this.send(2, {
+                token: token,
+                capabilities: 125,
+                presence: {
+                    activities: [],
+                    afk: false,
+                    status: 'online'
+                },
+                properties: {
+                    os: 'Windows',
+                    browser: 'Chrome'
                 }
-            })) // as DiscordSocketPayload<DiscordIdentify>
+            } as DiscordIdentify)
         } else {
-            this.socket?.send(JSON.stringify({
-                op: 6,
-                d: {
-                    token: 'ODg3MzM4OTU4NDUzODY2NTU3.YUCs2A.XZz40Vz7W5foc3vYrrhG0Zhs6ts',
-                    session_id: this.sessionId,
-                    seq: this._sequenceId
-                }
-            })) // as DiscordSocketPayload<DiscordResume>
+            this.send(6, {
+                token: token,
+                session_id: this.sessionId,
+                seq: this._sequenceId
+            } as DiscordResume)
         }
     }
 }

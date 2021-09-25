@@ -1,12 +1,14 @@
 //#region Socket
-export interface DiscordSocketPayload<D extends DiscordData> {
-    op: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11
+export type OPOut = 2 | 6 | 8 | 14
+
+export interface DiscordSocketPayload<OP extends OPOut, D extends DiscordData<OP>> {
+    op: OP
     d: D
 }
 
-export interface DiscordData {}
+export interface DiscordData<OP extends OPOut> {}
 
-export interface DiscordIdentify extends DiscordData {
+export interface DiscordIdentify extends DiscordData<2> {
     capabilities: number
     client_state?: {
         guild_hashes: {}
@@ -39,10 +41,23 @@ export interface DiscordIdentify extends DiscordData {
     }
 }
 
-export interface DiscordResume extends DiscordData {
+export interface DiscordResume extends DiscordData<6> {
     token: string
     session_id: string
     seq: number
+}
+
+export interface DiscordRequestGuildMembers extends DiscordData<8> {
+    guild_id: [string]
+    user_ids: string[]
+}
+
+export interface DiscordIDK extends DiscordData<14> {
+    guild_id: string
+    channels: { [name: string]: [[0, 99]] }
+    activities?: boolean
+    threads?: boolean
+    typing?: boolean
 }
 
 type Os = 'Windows'

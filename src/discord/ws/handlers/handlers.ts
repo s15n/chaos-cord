@@ -2,7 +2,9 @@ import { DiscordClient } from "../../DiscordClient";
 
 const EVENTS = {
     READY: 'ready',
-    MESSAGE_CREATE: 'messageCreate'
+    MESSAGE_CREATE: 'messageCreate',
+    GUILD_MEMBERS_CHUNK: 'guildMembersChunk',
+    GUILD_MEMBER_LIST_UPDATE: 'guildMemberListUpdate'
 }
 
 type Handler = Promise<(client: DiscordClient, d: any) => void>

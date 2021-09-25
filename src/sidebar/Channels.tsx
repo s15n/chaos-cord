@@ -14,38 +14,63 @@ export default class Channels extends Component<ChannelsProps> {
 
     _channels() {
         const channels = this.props.guild.channels
+        //channels.forEach(c => console.log(`${c.name} (${c.type}): ${c.position} [${!!c.parent_id}]`))
+        //;([...channels].sort((a, b) => a.position - b.position)).forEach(c => console.log(`${c.name} (${c.type}): ${c.position} [${!!c.parent_id}]`))
         const rulesChannelId = this.props.guild.rules_channel_id
-        
-        const arr: any[] = []
-        let lastTopChannel = 0
-        const ids = new Map<string, number>()
 
-        let index = 0
+        type SC = {
+            cid: string
+            c?: DiscordChannelBase
+            cat: boolean
+            children: SC[]
+        }
+        const struct: SC[] = []
+
         for (const channel of channels) {
-            if (channel.parent_id) continue
-            const cc = <Channel key={index} channel={channel} rules={channel.id === rulesChannelId} selected={this.props.selectedChannel?.id === channel.id}/>
-            if (channel.type === 4) {
-                arr.push(cc)
-            } else {
-                arr.splice(lastTopChannel, 0, cc)
-                ++lastTopChannel
+            if (channel.parent_id && (channel.type < 10 || channel.type > 12)) {
+                let parent = struct.find(sc => sc.cid === channel.parent_id)
+                if (!parent) {
+                    parent = { cid: channel.parent_id, cat: true, children: [] }
+                    struct.push(parent)
+                }
+
+                parent.children.push({
+                    cid: channel.id,
+                    c: channel,
+                    cat: channel.type === 4,
+                    children: []
+                })
+
+                continue
             }
-            ids.set(channel.id, arr.length)
-            ++index
+
+            const existingSc = channel.type === 4 
+                ? struct.find(sc => sc.cid === channel.id)
+                : undefined
+            if (existingSc) existingSc.c = channel
+
+            const sc: SC = existingSc ?? {
+                cid: channel.id,
+                c: channel,
+                cat: channel.type === 4,
+                children: []
+            }
+
+            if (!existingSc) struct.push(sc)
         }
-        ids.forEach((v, k) => {
-            ids.set(k, v + lastTopChannel)
-        })
-        for (const channel of channels) {
-            if (!channel.parent_id) continue
-            const parentPos = ids.get(channel.parent_id)!
-            const pos = parentPos + channel.position
-            arr.splice(pos, 0, <Channel key={index} channel={channel} rules={channel.id === rulesChannelId} selected={this.props.selectedChannel?.id === channel.id}/>)
-            ids.forEach((v, k) => {
-                if (v > parentPos) ids.set(k, v + 1)
-            })
-            ++index
+
+        const arr: any[] = []
+
+        function push(selectedChannelId: string, struct: SC[]) {
+            struct.sort((a, b) => (a.c!.position + (a.cat ? 999999 : 0)) - (b.c!.position + (b.cat ? 999999 : 0)))
+            for (const sc of struct) {
+                arr.push(<Channel channel={sc.c!} rules={sc.cid === rulesChannelId} selected={selectedChannelId === sc.cid}/>)
+                if (sc.children.length > 0) {
+                    push(selectedChannelId, sc.children)
+                }
+            }
         }
+        push(this.props.selectedChannel?.id ?? 'null', struct)
 
         return arr
     }
@@ -86,8 +111,8 @@ class Channel extends Component<ChannelProps, { hover: boolean }> {
                 width: 208,
                 paddingTop: channelType === 4 ? 16 : 7,
                 paddingBottom: 7,
-                fontSize: channelType === 4 ? '14px' : undefined,
-                fontWeight: channelType === 4 ? 500 : undefined
+                fontSize: channelType === 4 ? '12px' : '15px',
+                fontWeight: channelType === 4 ? 600 : undefined
             }}>
                 <div 
                 style={{
@@ -146,3 +171,38 @@ const channelIconOverlays = {
     restricted: <path fill="currentColor" d="M21.025 5V4C21.025 2.88 20.05 2 19 2C17.95 2 17 2.88 17 4V5C16.4477 5 16 5.44772 16 6V9C16 9.55228 16.4477 10 17 10H19H21C21.5523 10 22 9.55228 22 9V5.975C22 5.43652 21.5635 5 21.025 5ZM20 5H18V4C18 3.42857 18.4667 3 19 3C19.5333 3 20 3.42857 20 4V5Z"></path>,
     thread: <path fill="currentColor" d="M13.4399 12.96C12.9097 12.96 12.4799 13.3898 12.4799 13.92V20.2213C12.4799 20.7515 12.9097 21.1813 13.4399 21.1813H14.3999C14.5325 21.1813 14.6399 21.2887 14.6399 21.4213V23.4597C14.6399 23.6677 14.8865 23.7773 15.0408 23.6378L17.4858 21.4289C17.6622 21.2695 17.8916 21.1813 18.1294 21.1813H22.5599C23.0901 21.1813 23.5199 20.7515 23.5199 20.2213V13.92C23.5199 13.3898 23.0901 12.96 22.5599 12.96H13.4399Z"></path>
 }
+
+/*
+
+        
+        const arr: any[] = []
+        let lastTopChannel = 0
+        const ids = new Map<string, number>()
+
+        let index = 0
+        for (const channel of channels) {
+            if (channel.parent_id) continue
+            const cc = <Channel key={index} channel={channel} rules={channel.id === rulesChannelId} selected={this.props.selectedChannel?.id === channel.id}/>
+            if (channel.type === 4) {
+                arr.push(cc)
+            } else {
+                arr.splice(lastTopChannel, 0, cc)
+                ++lastTopChannel
+            }
+            ids.set(channel.id, arr.length)
+            ++index
+        }
+        ids.forEach((v, k) => {
+            ids.set(k, v + lastTopChannel)
+        })
+        for (const channel of channels) {
+            if (!channel.parent_id) continue
+            const parentPos = ids.get(channel.parent_id)!
+            const pos = parentPos + channel.position
+            arr.splice(pos, 0, <Channel key={index} channel={channel} rules={channel.id === rulesChannelId} selected={this.props.selectedChannel?.id === channel.id}/>)
+            ids.forEach((v, k) => {
+                if (v > parentPos) ids.set(k, v + 1)
+            })
+            ++index
+        }
+*/

@@ -1,4 +1,5 @@
-import { Component, createRef } from 'react'
+import { Component, createRef, RefObject, UIEvent, UIEventHandler } from 'react'
+import { currentClient } from '../App';
 import { CallbackHandler, noCallback } from '../Callback'
 import Button from '../components/Button';
 import { DiscordChannelBase, DiscordMessageIn } from '../discord/discord-classes';
@@ -6,12 +7,11 @@ import { dateToDateString } from '../utils';
 import { isMemberListVisible } from './ChatContainer';
 import ChatMessage from './ChatMessage';
 
-const messageHandler: CallbackHandler<any> = {
+const messageHandler: CallbackHandler<DiscordMessageIn> = {
     callback: noCallback
 }
 
-export function pushMessage(message: any) {
-    console.log('pushing message -')
+export function pushMessage(message: DiscordMessageIn) {
     messageHandler.callback(message);
 }
 
@@ -37,7 +37,7 @@ export default class ChatArea extends Component<ChatAreaProps, {
                 flexGrow: 1,
                 flexDirection: 'column-reverse'
             }}>
-                <Input input={[this.state.input, (set) => this.setState({input: set})]}/>
+                <Input input={[this.state.input, (set) => this.setState({input: set})]} channel={this.props.channel}/>
                 <Chat channel={this.props.channel}/>
             </main>
         )
@@ -62,8 +62,11 @@ class Chat extends Component<ChatProps, {
         top: 0
     }
 
+    scrollArea: RefObject<HTMLDivElement>
+
     constructor(props: ChatProps) {
         super(props)
+        this.scrollArea = createRef()
         this.state = {
             messages: []
         }
@@ -73,11 +76,12 @@ class Chat extends Component<ChatProps, {
         console.log(`Loading Messages: ${this.channelId}`)
         fetch(`https://discord.com/api/v9/channels/${this.channelId}/messages?limit=50`, {
             headers: {
-                'Authorization': 'ODg3MzM4OTU4NDUzODY2NTU3.YUCs2A.XZz40Vz7W5foc3vYrrhG0Zhs6ts'
+                'Authorization': window.localStorage.getItem('token')!
             }
         }).then(value => 
             value.json()
         ).then(messages => {
+            if (!Array.isArray(messages)) return
             this.messages = messages.reverse()
             this.setState({
                 messages: this.messages
@@ -90,14 +94,25 @@ class Chat extends Component<ChatProps, {
         return this.messages
     }
 
-    componentDidMount() {
-        console.log('mount')
+    private setCallback() {
         messageHandler.callback = (message) => {
-            console.log('pushing message')
+            console.log(message.channel_id)
+            console.log(this.props.channel?.id)
+            console.log('#####')
+            if (message.channel_id !== this.channelId) return
             this.setState({
                 messages: this.pushMessage(message)
             })
         }
+    }
+
+    componentDidMount() {
+        console.log('mount')
+        this.setCallback()
+    }
+
+    componentDidUpdate() {
+        this.setCallback()
     }
 
     componentWillUnmount() {
@@ -105,18 +120,41 @@ class Chat extends Component<ChatProps, {
     }
 
     fetchMessagesBefore(id: string) {
+        //currentClient()?.rest?.api?.channels?.[this.channelId!]?.messages?.get({ before: id, limit: 50 })
         fetch(`https://discord.com/api/v9/channels/${this.channelId}/messages?before=${id}&limit=50`, {
             headers: {
-                'Authorization': 'ODg3MzM4OTU4NDUzODY2NTU3.YUCs2A.XZz40Vz7W5foc3vYrrhG0Zhs6ts'
+                'Authorization': window.localStorage.getItem('token')!
             }
         }).then(value => 
             value.json()
         ).then(messages => {
+            if (!Array.isArray(messages)) return
             this.messages.unshift(...messages.reverse())
             this.setState({
                 messages: this.messages
             })
         })
+    }
+
+    private onScroll: UIEventHandler<HTMLDivElement> = event => {
+        const target = event.target as HTMLDivElement
+        let onTop = target.scrollTop <= 25 + target.clientHeight - target.scrollHeight + 1
+        if (this.prevScroll.height < target.scrollHeight) {
+            target.scrollTop = this.prevScroll.top
+            this.fetchPaused = false
+            onTop = false
+        }
+        if (onTop) {
+            if (!this.fetchPaused) {
+                this.fetchPaused = true
+                console.log('Fetching messages...')
+                this.fetchMessagesBefore(this.messages[0].id)
+            }
+        }
+        this.prevScroll = {
+            height: target.scrollHeight,
+            top: target.scrollTop
+        }
     }
 
     render() {
@@ -125,6 +163,10 @@ class Chat extends Component<ChatProps, {
             this.currentChannel = this.props.channel
             this.channelId = this.currentChannel?.id
             this.loadLatestMessages()
+            this.fetchPaused = false
+            const scrollArea = this.scrollArea.current
+            if (!scrollArea) return
+            scrollArea.scrollTop = 0
         }
 
         const size = this.state.messages.length
@@ -172,35 +214,21 @@ class Chat extends Component<ChatProps, {
             }}>
                 <div 
                 style={{
-                    height: 'calc(100% - 138px)', // 100% - 60px - 48px - 8px - 22px
-                    width: `calc(100% - ${isMemberListVisible() ? 557 : 317}px`, // 100% - 240px - 240px? - 72px - 5px
+                    //height: 'calc(100% - 138px)', // 100% - 60px - 48px - 8px - 22px
+                    //width: `calc(100% - ${isMemberListVisible() ? 557 : 317}px`, // 100% - 240px - 240px? - 72px - 5px
                     display: 'flex',
                     flex: 1,
                     flexDirection: 'column-reverse',
                     overflowX: 'hidden',
                     overflowY: 'auto',
                     position: 'fixed',
+                    left: 312,
+                    right: isMemberListVisible() ? 248 : 8,
+                    top: 70,
+                    bottom: 68
                 }}
-                onScroll={event => {
-                    const target = event.target as HTMLDivElement
-                    let onTop = target.scrollTop <= 20 + target.clientHeight - target.scrollHeight + 1
-                    if (this.prevScroll.height < target.scrollHeight) {
-                        target.scrollTop = this.prevScroll.top
-                        this.fetchPaused = false
-                        onTop = false
-                    }
-                    if (onTop) {
-                        if (!this.fetchPaused) {
-                            this.fetchPaused = true
-                            console.log('Fetching messages...')
-                            this.fetchMessagesBefore(this.messages[0].id)
-                        }
-                    }
-                    this.prevScroll = {
-                        height: target.scrollHeight,
-                        top: target.scrollTop
-                    }
-                }}
+                ref={this.scrollArea}
+                onScroll={this.onScroll}
                 >
                     <div style={{
                         height: 24,
@@ -245,6 +273,7 @@ const ChatMessageDivider = ({date}: {date: Date}) => (
 
 type InputProps = {
     input: [string, (set: string) => void]
+    channel: DiscordChannelBase | undefined
 }
 
 class Input extends Component<InputProps, {
@@ -261,11 +290,11 @@ class Input extends Component<InputProps, {
     }
 
     submit(text: string) {
-        fetch('https://discord.com/api/v9/channels/581185346465824770/messages', {
+        fetch(`https://discord.com/api/v9/channels/${this.props.channel?.id}/messages`, {
             method: 'POST',
             body: JSON.stringify({content: text}),
             headers: {
-                'Authorization': 'ODg3MzM4OTU4NDUzODY2NTU3.YUCs2A.XZz40Vz7W5foc3vYrrhG0Zhs6ts',
+                'Authorization': window.localStorage.getItem('token')!,
                 'Content-Type': 'application/json'
             }
         })

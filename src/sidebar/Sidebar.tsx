@@ -9,10 +9,6 @@ type SidebarProps = {
 }
 
 export default class Sidebar extends Component<SidebarProps> {
-    constructor(props: SidebarProps) {
-        super(props)
-    }
-
     render() {
         return (
             <div id='Sidebar' style={{
@@ -25,7 +21,9 @@ export default class Sidebar extends Component<SidebarProps> {
                     width: '100%',
                     display: 'flex',
                     flexGrow: 1,
-                    flexDirection: 'column'
+                    flexDirection: 'column',
+                    overflowX: 'hidden',
+                    overflowY: 'auto'
                 }}>
                     <div style={{
                         width: 218,
@@ -40,7 +38,8 @@ export default class Sidebar extends Component<SidebarProps> {
                             height: 20,
                             marginTop: 14,
                             fontWeight: 500,
-                            fontSize: 15
+                            fontSize: 15,
+                            overflowX: 'hidden'
                         }}>
                             {this.props.selectedGuild?.name}
                         </h1>

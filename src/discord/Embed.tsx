@@ -30,7 +30,7 @@ export default class Embed extends Component<EmbedProps> {
                     fontWeight: 600,
                     marginTop: 2,
                     color: '#eeeeee'
-                }}>{embed.author.name}</span>
+                }}>{discordFormattedText(embed.author.name, this.props.messageRef)}</span>
             </div>
         ) : null
 
@@ -71,7 +71,7 @@ export default class Embed extends Component<EmbedProps> {
                         height: 18,
                         fontWeight: 600,
                         color: '#eeeeee'
-                    }}>{field.name}</span>
+                    }}>{discordFormattedText(field.name, this.props.messageRef)}</span>
                     {discordFormattedText(field.value, this.props.messageRef)}
                 </div>
             )
@@ -103,7 +103,7 @@ export default class Embed extends Component<EmbedProps> {
                 <span style={{
                     fontSize: 12,
                     fontWeight: 500
-                }}>{embed.footer.text}</span>
+                }}>{discordFormattedText(embed.footer.text, this.props.messageRef)}</span>
             </div>
         ) : null
 
@@ -123,11 +123,17 @@ export default class Embed extends Component<EmbedProps> {
         ) : null
 
         const image = embed.image ? (
-            <img src={embed.image.url} alt=" "/>
+            <img src={embed.image.url} alt=" " style={{
+                maxWidth: 400,
+                maxHeight: 400,
+                borderRadius: 4,
+                marginTop: 10,
+                marginBottom: 2
+            }}/>
         ) : null
 
         const video = embed.video ? (
-            <video controls src={embed.video.url} style={{
+            <video controls={embed.type !== 'gifv'} autoPlay={embed.type === 'gifv'} loop={embed.type === 'gifv'} src={embed.video.url} style={{
                 width: 400,
                 height: 225,
                 borderRadius: 4
@@ -135,7 +141,7 @@ export default class Embed extends Component<EmbedProps> {
         ) : null
 
         
-        if (embed.type === 'video' || embed.type === 'gifv') {
+        if (embed.type === 'gifv') {
             return (
                 <div style={{
                     marginTop: 2,
@@ -150,7 +156,8 @@ export default class Embed extends Component<EmbedProps> {
                 //borderWidth: 4
                 display: embed.thumbnail ? 'grid' : undefined,
                 marginTop: 2,
-                marginBottom: 2
+                marginBottom: 2,
+                maxWidth: embed.image ? 400 : undefined
             }}>
                 {author}
                 {title}

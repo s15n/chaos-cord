@@ -4,7 +4,7 @@ import { DiscordMessageIn } from "./discord-classes";
 import { DiscordClient } from "./DiscordClient";
 import Embed from "./Embed";
 
-const messageSpecialRegex = /(?<br>\n)|(?<a>https?:\/\/([\w-\/:%\d]+\.)*[\w-\/%\d]+)|(?<emoji_name>:\w+:|:[+-]1:)|(?<custom_emoji><a?:\w+:\d+>)|(?<mention><@[!&]?\d+>)|(?<channel><#\d+>)|(?<emoji>\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g
+const messageSpecialRegex = /(?<br>\n)|(?<a>https?:\/\/([^. ]+\.)*[^ ]+)|(?<emoji_name>:[\W\w_]+:|:[+-]1:)|(?<custom_emoji><a?:[\W\w_]+:\d+>)|(?<mention><@[!&]?\d+>)|(?<everyone>(?<![^\s])@everyone(?![^\s]))|(?<channel><#\d+>)|(?<emoji>\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g
 const markdownRegex = /(?<b>\*\*(?:[^*]|\*[^*])+\*?\*\*)|(?<i>\*[^*]+\*)|(?<u>__(?:[^_]|_[^_])+__)|(?<s>~~(?:[^~]|~[^~])+~~)|(?<c>`[^`\n]+`)/g
 // |(?<q>(?<![^\n])>\s\w+\n?)
 
@@ -15,19 +15,20 @@ const ChatMessageContent = ({message}: {message: DiscordMessageIn}) => {
     const embedResult = message.embeds.map((embed, index) => <Embed key={index} embed={embed} messageRef={message}/>)
     const attachments: any[] = []
     message.attachments.forEach((att, index) => {
-        console.log(att)
+        //console.log(att)
         if (att.content_type?.startsWith('image/'))
         attachments.push(
-            <div key={index} style={{
+            <a key={index} style={{
                 marginTop: 2,
-                marginBottom: 2
-            }}>
+                marginBottom: 2,
+                display: 'block'
+            }} href={att.url} target='_blank'>
                 <img src={att.url} alt={att.filename} style={{
                     maxWidth: 400,
                     maxHeight: 400,
                     borderRadius: 4
                 }}/>
-            </div>
+            </a>
         )
     })
 
@@ -146,11 +147,17 @@ function formattedText(text: string, message: DiscordMessageIn): any[] {
                 const animated = emoji[1] === 'a'
                 result.push(<Emoji url={`https://cdn.discordapp.com/emojis/${emoji.split(':')[2].slice(0, -1)}.${animated ? 'gif' : 'png'}`}/>)
                 length = groups.custom_emoji.length
+            } else if (groups.everyone) {
+                const mention = groups.everyone
+                if (message.mention_everyone) {
+                    result.push(<Mention before="@" text="everyone"/>)
+                    length = mention.length
+                }
             } else if (groups.mention) {
                 const mention = groups.mention
                 const type = mention[2] === '!' ? 'nick' : mention[2] === '&' ? 'role' : 'user'
                 const id = mention.slice(type !== 'user' ? 3 : 2, -1)
-                const target: any = type === 'role' ? (message.mention_roles.includes(id) ? DiscordClient.getRole(currentClient()?.getGuild(message.guild_id), id) : undefined) : message.mentions.find(m => m.id === id)
+                const target: any = type === 'role' ? (/*message.mention_roles.includes(id) ? */DiscordClient.getRole(currentClient()?.getGuild(message.guild_id), id)/* : undefined*/) : message.mentions.find(m => m.id === id)
                 if (target) {
                     result.push(<Mention before='@' text={
                         type === 'role' 

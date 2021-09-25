@@ -6,7 +6,7 @@ import ChatContainer from './chat/ChatContainer'
 import isElectron from 'is-electron'
 import Button from './components/Button'
 import { DiscordClient } from './discord/DiscordClient'
-import { DiscordChannelBase, DiscordGuild } from './discord/discord-classes'
+import { DiscordChannelBase, DiscordGuild, DiscordIDK, DiscordRequestGuildMembers } from './discord/discord-classes'
 import { CallbackHandler, noCallback } from './Callback'
 
 const selectedGuildCH: CallbackHandler<DiscordGuild | null> = {
@@ -14,7 +14,6 @@ const selectedGuildCH: CallbackHandler<DiscordGuild | null> = {
 }
 export function selectGuild(guild: DiscordGuild | null) {
   console.log(`Select Guild: ${guild?.name}`)
-  selectChannel(guild?.channels[0] ?? null) // TODO
   selectedGuildCH.callback(guild)
 }
 
@@ -54,15 +53,60 @@ export default class App extends Component<{}, {
     }
   }
 
+  private currentGuild: DiscordGuild | null = null
+
+  private selectedChannels: Map<string, string[]> = new Map()
+  private selectedChannelsPayload: Map<string, { [name: string]: [[0, 99]] }> = new Map()
+
   componentDidMount() {
     console.log('App Component did mount')
     window.addEventListener('keypress', keyListener)
 
+    selectedChannelCH.callback = channel => {
+      console.log('Selecting Channel!')
+
+      if (this.currentGuild && channel?.id) {
+        const guildId = this.currentGuild.id
+
+        window.localStorage.setItem(`selected_channel_${guildId}`, channel.id)
+
+        console.log(this.selectedChannels)
+        console.log(this.selectedChannelsPayload)
+        let scs = this.selectedChannels.get(guildId)
+        if (scs === undefined) {
+          scs = []
+          this.selectedChannels.set(guildId, [])
+          this.selectedChannelsPayload.set(guildId, {})
+        }
+        //console.error(scs)
+        //console.warn(channel.id !in scs)
+        if (!scs.includes(channel.id)) {
+          scs.push(channel.id)
+          const p = this.selectedChannelsPayload.get(guildId)!
+          p[channel.id] = [[0, 99]]
+          console.log(scs)
+          console.log(p)
+        }
+        this.discordClient?.ws.send(14, {
+          guild_id: guildId,
+          channels: this.selectedChannelsPayload.get(guildId)!,
+          threads: true,
+          activities: true,
+          typing: true
+        } as DiscordIDK)
+        /*this.discordClient?.ws.send(8, {
+          guild_id: guildId,
+          user_ids: this.discordClient.userIds
+        } as DiscordRequestGuildMembers)*/
+      } else { console.warn(`No guild selected (Tried to select Channel ${channel?.name} on Guild ${this.currentGuild})`) }
+      this.setState({ selectedChannel: channel })
+    }
     selectedGuildCH.callback = guild => {
       this.setState({ selectedGuild: guild })
-    }
-    selectedChannelCH.callback = channel => {
-      this.setState({ selectedChannel: channel })
+      const scId = window.localStorage.getItem(`selected_channel_${guild?.id}`)
+      const sc = (scId !== undefined ? guild?.channels?.find(c => c.id === scId) : undefined) ?? guild?.channels[0]
+      this.currentGuild = guild
+      if (sc) selectChannel(sc)
     }
 
     if (isElectron()) {
@@ -70,7 +114,12 @@ export default class App extends Component<{}, {
       console.log(window.electron)
       window.electron.ping()
     }
-    this.discordClient = new DiscordClient()
+    let token = window.localStorage.getItem('token')
+    if (!token) {
+      token = 'ODg3MzM4OTU4NDUzODY2NTU3.YUCs2A.XZz40Vz7W5foc3vYrrhG0Zhs6ts'
+      window.localStorage.setItem('token', token)
+    }
+    this.discordClient = new DiscordClient(token)
     client = this.discordClient
     this.discordClient.login()
   }

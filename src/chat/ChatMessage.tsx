@@ -60,35 +60,6 @@ const ChatMessageGroupStart = ({message}: {message: DiscordMessageIn}) => {
     )
 }
 
-const ChatMessageDivider = ({date}: {date: number}) => (
-    <div style={{
-        width: '100%',
-        height: 0,
-        marginLeft: 16,
-        marginRight: 14,
-        marginTop: 24,
-        marginBottom: 8,
-        borderTopWidth: 1,
-        borderTopColor: 'rgba(255, 255, 255, 0.06)'
-    }}>
-        <span style={{
-            marginTop: -11,
-            height: 13,
-            alignSelf: "center",
-            paddingLeft: 4,
-            paddingRight: 4,
-            paddingTop: 2,
-            paddingBottom: 2,
-            fontSize: '12px',
-            fontWeight: 600,
-            color: '#777777',
-            backgroundColor: '#272727'
-        }}>
-            {/*dateToDateString(date)*/'1 January 1970'}
-        </span>
-    </div>
-)
-
 function getAuthor(message: DiscordMessageIn) {
     const avatar = message.member?.avatar ?? message.author.avatar;
     const image = avatar ? `https://cdn.discordapp.com/avatars/${message.author.id}/${avatar}.webp?size=128` : `https://cdn.discordapp.com/embed/avatars/${Number.parseInt(message.author.discriminator) % 5}.png`
