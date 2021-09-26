@@ -2,10 +2,12 @@ import { Component, createRef, RefObject, UIEvent, UIEventHandler } from 'react'
 import { currentClient } from '../App';
 import { CallbackHandler, noCallback } from '../Callback'
 import Button from '../components/Button';
-import { DiscordChannelBase, DiscordMessageIn } from '../discord/discord-classes';
+import { DiscordChannel, DiscordChannelBase, DiscordMessageIn } from '../discord/discord-classes';
+import { DiscordClient } from '../discord/DiscordClient';
 import { dateToDateString } from '../utils';
 import { isMemberListVisible } from './ChatContainer';
 import ChatMessage from './ChatMessage';
+import StorePage from './StorePage';
 
 const messageHandler: CallbackHandler<DiscordMessageIn> = {
     callback: noCallback
@@ -37,8 +39,9 @@ export default class ChatArea extends Component<ChatAreaProps, {
                 flexGrow: 1,
                 flexDirection: 'column-reverse'
             }}>
+                {this.props.channel?.type === 6 ? <StorePage channel={this.props.channel as DiscordChannel<6>}/> : <>
                 <Input input={[this.state.input, (set) => this.setState({input: set})]} channel={this.props.channel}/>
-                <Chat channel={this.props.channel}/>
+                <Chat channel={this.props.channel}/></>}
             </main>
         )
     }
@@ -74,11 +77,7 @@ class Chat extends Component<ChatProps, {
 
     loadLatestMessages() {
         console.log(`Loading Messages: ${this.channelId}`)
-        fetch(`https://discord.com/api/v9/channels/${this.channelId}/messages?limit=50`, {
-            headers: {
-                'Authorization': window.localStorage.getItem('token')!
-            }
-        }).then(value => 
+        DiscordClient.request('GET', ['channels', this.channelId ?? 'null', 'messages'], undefined, undefined, ['limit=50']).then(value => 
             value.json()
         ).then(messages => {
             if (!Array.isArray(messages)) return
@@ -100,19 +99,35 @@ class Chat extends Component<ChatProps, {
             console.log(this.props.channel?.id)
             console.log('#####')
             if (message.channel_id !== this.channelId) return
+
             this.setState({
                 messages: this.pushMessage(message)
             })
         }
     }
 
+    tryReloadMessages() {
+        this.currentChannel = this.props.channel
+        this.channelId = this.currentChannel?.id
+        this.loadLatestMessages()
+        this.fetchPaused = false
+        const scrollArea = this.scrollArea.current
+        if (!scrollArea) return
+        scrollArea.scrollTop = 0
+    }
+
     componentDidMount() {
         console.log('mount')
         this.setCallback()
+        this.tryReloadMessages()
     }
 
     componentDidUpdate() {
         this.setCallback()
+        const newChannel = this.props.channel?.id !== this.currentChannel?.id
+        if (newChannel) {
+            this.tryReloadMessages()
+        }
     }
 
     componentWillUnmount() {
@@ -121,11 +136,7 @@ class Chat extends Component<ChatProps, {
 
     fetchMessagesBefore(id: string) {
         //currentClient()?.rest?.api?.channels?.[this.channelId!]?.messages?.get({ before: id, limit: 50 })
-        fetch(`https://discord.com/api/v9/channels/${this.channelId}/messages?before=${id}&limit=50`, {
-            headers: {
-                'Authorization': window.localStorage.getItem('token')!
-            }
-        }).then(value => 
+        DiscordClient.request('GET', ['channels', this.channelId ?? 'null', 'messages'], undefined, undefined, [`before=${id}`, 'limit=50']).then(value => 
             value.json()
         ).then(messages => {
             if (!Array.isArray(messages)) return
@@ -158,17 +169,6 @@ class Chat extends Component<ChatProps, {
     }
 
     render() {
-        const newChannel = this.props.channel?.id !== this.currentChannel?.id
-        if (newChannel) {
-            this.currentChannel = this.props.channel
-            this.channelId = this.currentChannel?.id
-            this.loadLatestMessages()
-            this.fetchPaused = false
-            const scrollArea = this.scrollArea.current
-            if (!scrollArea) return
-            scrollArea.scrollTop = 0
-        }
-
         const size = this.state.messages.length
         const arr = Array(size)
 
@@ -290,13 +290,8 @@ class Input extends Component<InputProps, {
     }
 
     submit(text: string) {
-        fetch(`https://discord.com/api/v9/channels/${this.props.channel?.id}/messages`, {
-            method: 'POST',
-            body: JSON.stringify({content: text}),
-            headers: {
-                'Authorization': window.localStorage.getItem('token')!,
-                'Content-Type': 'application/json'
-            }
+        DiscordClient.request('POST', ['channels', this.props.channel?.id ?? 'null', 'message'], {
+            content: text
         })
     }
 

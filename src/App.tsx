@@ -33,8 +33,6 @@ export function currentClient() {
 
 
 const keyListener = (e: KeyboardEvent) => {
-  //console.log(e)
-  //console.log(e.ctrlKey)
   if (e.code === 'KeyR' && e.ctrlKey) window.electron.reloadPage()
   else if (e.code === 'KeyI' && e.ctrlKey && e.shiftKey) window.electron.devTools()
 }
@@ -102,6 +100,7 @@ export default class App extends Component<{}, {
       this.setState({ selectedChannel: channel })
     }
     selectedGuildCH.callback = guild => {
+      console.log('Selecting guild')
       this.setState({ selectedGuild: guild })
       const scId = window.localStorage.getItem(`selected_channel_${guild?.id}`)
       const sc = (scId !== undefined ? guild?.channels?.find(c => c.id === scId) : undefined) ?? guild?.channels[0]

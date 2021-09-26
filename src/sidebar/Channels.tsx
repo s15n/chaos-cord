@@ -124,7 +124,7 @@ class Channel extends Component<ChannelProps, { hover: boolean }> {
                     marginLeft: 8,
                     paddingLeft: 8,
                     paddingRight: 8,
-                    overflowX: 'hidden',
+                    overflowX: 'clip',
                     backgroundColor: channelType === 4 ? undefined : this.props.selected ? '#7f7f7f7f' : this.state.hover ? '#7f7f7f3f' : undefined,
                     borderRadius: 4,
                     paddingTop: channelType === 4 ? 12 : 4,
@@ -187,7 +187,7 @@ class Channel extends Component<ChannelProps, { hover: boolean }> {
     }
 }
 
-function channelIcon(rules: boolean, type: number) {
+export function channelIcon(rules: boolean, type: number) {
     //return (<>{type}</>)
     if (rules) return channelIcons.rules
     if (type === 0) return channelIcons[0]

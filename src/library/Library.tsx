@@ -1,20 +1,13 @@
 import { Component, createRef, RefObject } from 'react'
 import { openGameUrl } from '..'
+import { DiscordClient } from '../discord/DiscordClient'
 
 export default class Library extends Component {
     apps: any[] = []
     componentDidMount() {
-        fetch(`https://discord.com/api/v9/users/@me/library`, {
-            headers: {
-                'Authorization': window.localStorage.getItem('token')!
-            }
-        })
+        DiscordClient.request('GET', ['users', '@me', 'library'])
 
-        fetch(`https://discord.com/api/v9/applications/detectable`, {
-            headers: {
-                'Authorization': window.localStorage.getItem('token')!
-            }
-        }).then(value => 
+        DiscordClient.request('GET', ['applications', 'detectable']).then(value => 
             value.json()
         ).then(apps => {
             if (!Array.isArray(apps)) return
@@ -94,14 +87,21 @@ class Game extends Component<GameProps, { hover: boolean }> {
         background-image: 
             linear-gradient(150deg, #ffffff3f, transparent, transparent, transparent, #000000af), 
             url(${this.imageUrl}); 
-        background-size: ${!hover ? '220px 330px' : '236px 354px'};
+        background-size: 220px 330px;
         filter: saturate(120%);
-        width: ${!hover ? '220px' : '236px'};
-        height: ${!hover ? '330px' : '354x'};
-        margin: ${!hover ? '10px 20px 20px 10px' : '10px 12px 7px 2px'};
+        width: 220px;
+        height: 330px;
+        margin: 10px 20px 20px 10px;
         ${hover ? 'box-shadow: 0 0 5px 1px gray' : ''};
         `)
     }
+
+    /*
+    background-size: ${!hover ? '220px 330px' : '236px 354px'}
+    width: ${!hover ? '220px' : '236px'};
+        height: ${!hover ? '330px' : '354x'};
+        margin: ${!hover ? '10px 20px 20px 10px' : '10px 12px 7px 2px'};
+    */
 
     componentDidMount() { this._setStyle() }
     componentDidUpdate() { this._setStyle() }
@@ -116,7 +116,7 @@ class Game extends Component<GameProps, { hover: boolean }> {
             onClick={() => { openGameUrl(this.gameUrl) }}
             >
                 <svg width="32" height="32" viewBox={launcherLogoVieyBoxes[this.props.type]} version="1.1" preserveAspectRatio="xMidYMid" style={{ 
-                    marginLeft: this.state.hover ? 188 : 180,
+                    marginLeft: 180, //this.state.hover ? 188 : 180,
                     marginRight: 8,
                     marginTop: 290
                 }}><g>

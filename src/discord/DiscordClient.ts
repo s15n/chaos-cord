@@ -1,5 +1,4 @@
 import { DiscordGuild, DiscordUserPartial } from "./discord-classes";
-import { Rest } from "./rest/Rest";
 import { DiscordWs } from "./ws/DiscordWs";
 
 export class DiscordClient {
@@ -8,7 +7,6 @@ export class DiscordClient {
         this.token = token
     }
 
-    readonly rest = new Rest(this)
     readonly ws = new DiscordWs(this)
 
     private guilds: Map<string, DiscordGuildPlus> = new Map()
@@ -56,7 +54,28 @@ export class DiscordClient {
         if (!guild) return undefined
         return guild.roles.find(r => r.id === id)
     }
+
+    static request(
+        method: 'GET' | 'POST' | 'PATCH' | 'DELETE' | 'PUT', 
+        route: string[], 
+        data?: {}, 
+        json: boolean | undefined = true, 
+        query: string[] = [], 
+        api: string = API_ROOT
+    ) {
+        const token = window.localStorage.getItem('token')!
+        return fetch(`https://${api}/${route.join('/')}${query ? `?${query.join('&')}` : ""}`, {
+            method: method,
+            body: data ? JSON.stringify(data) : undefined,
+            headers: {
+                'Authorization': token,
+                ...(json ? { 'Content-Type':'application/json' } : undefined)
+            }
+        })
+    }
 }
+
+const API_ROOT = "discord.com/api/v9"
 
 class DiscordGuildPlus {
     client: DiscordClient

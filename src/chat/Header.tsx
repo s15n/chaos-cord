@@ -1,6 +1,7 @@
 import  { Component, CSSProperties } from 'react'
 import Button, { ButtonClickListener } from '../components/Button'
 import TextInput from '../components/TextInput'
+import { channelIcon } from '../sidebar/Channels'
 import { toggleMemberListVisible } from './ChatContainer'
 
 export default class Header extends Component<{
