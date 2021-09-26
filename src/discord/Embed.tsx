@@ -11,6 +11,10 @@ type EmbedProps = {
 export default class Embed extends Component<EmbedProps> {
     render() {
         const embed = this.props.embed
+        if (!embed.image && !embed.title) {
+            embed.image = embed.thumbnail
+            embed.thumbnail = undefined
+        }
 
         const author = embed.author ? (
             <div style={{

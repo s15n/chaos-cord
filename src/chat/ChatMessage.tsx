@@ -3,6 +3,14 @@ import ChatMessageContent from "../discord/discord-message-formatting"
 import { dateToTimestampString } from "../utils"
 
 const ChatMessage = ({message, groupStart}: {message: DiscordMessageIn, groupStart: boolean}) => (
+    message.type === 7 ? <div className="text" style={{
+        width: 623,
+        paddingLeft: 72, 
+        paddingRight: 48,
+        paddingTop: 2,
+        paddingBottom: 2,
+        marginTop: 17,
+    }}>Welcome {message.member?.nick ?? message.author.username}</div> :
     groupStart ? <ChatMessageGroupStart  message={message}/> : <ChatMessageItem  message={message}/>
 )
 

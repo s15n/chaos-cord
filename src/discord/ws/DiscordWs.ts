@@ -130,7 +130,12 @@ export class DiscordWs {
                 token: token,
                 capabilities: 125,
                 presence: {
-                    activities: [],
+                    activities: [{
+                        name: 'Live',
+                        type: 1,
+                        url: 'https://twitch.tv/hallowelt100',
+                        
+                    }],
                     afk: false,
                     status: 'online'
                 },

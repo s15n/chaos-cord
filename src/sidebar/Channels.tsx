@@ -108,6 +108,47 @@ class Channel extends Component<ChannelProps, { hover: boolean }> {
         const channelType = this.props.channel.type
         return (
             <div style={{
+                width: 224,
+                paddingTop: 1,
+                paddingBottom: 1,
+                height: 32,
+                paddingRight: 8,
+                fontSize: channelType === 4 ? '12px' : '15px',
+                fontWeight: channelType === 4 ? 600 : undefined,
+                color: channelType === 4 ? '#dddddd' : '#bbbbbb'
+            }}>
+                <div 
+                style={{
+                    width: 200,
+                    height: 28,
+                    marginLeft: 8,
+                    paddingLeft: 8,
+                    paddingRight: 8,
+                    overflowX: 'hidden',
+                    backgroundColor: channelType === 4 ? undefined : this.props.selected ? '#7f7f7f7f' : this.state.hover ? '#7f7f7f3f' : undefined,
+                    borderRadius: 4,
+                    paddingTop: channelType === 4 ? 12 : 4,
+                    cursor: 'pointer'
+                }}
+                onMouseEnter={() => { this.setState({ hover: true }) }} 
+                onMouseLeave={() => { this.setState({ hover: false }) }}
+                onMouseDown={() => { if (this.props.channel.type !== 4) selectChannel(this.props.channel) }}
+                >
+                    <div style={{
+                        width: 20,
+                        height: 20,
+                        marginRight: 8,
+                        float: 'left',
+                        marginTop: -1
+                    }}>
+                        {channelIcon(this.props.rules, channelType)}
+                    </div>
+                    {channelType === 4 ? this.props.channel.name.toUpperCase() : this.props.channel.name}
+                </div>
+            </div>
+        )
+        return (
+            <div style={{
                 width: 208,
                 paddingTop: channelType === 4 ? 16 : 7,
                 paddingBottom: 7,
@@ -147,11 +188,13 @@ class Channel extends Component<ChannelProps, { hover: boolean }> {
 }
 
 function channelIcon(rules: boolean, type: number) {
+    //return (<>{type}</>)
     if (rules) return channelIcons.rules
     if (type === 0) return channelIcons[0]
     if (type === 2) return channelIcons[2]
     if (type === 4) return channelIcons[4]
     if (type === 5) return channelIcons[5]
+    if (type === 6) return channelIcons[6]
     if (type === 13) return channelIcons[13]
     if (type === 10 || type === 11 || type === 12) return channelIcons.thread
 }
@@ -164,7 +207,8 @@ const channelIcons = {
     13: <svg width="23" height="23" viewBox="0 0 24 24" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M14 13C14 14.1 13.1 15 12 15C10.9 15 10 14.1 10 13C10 11.9 10.9 11 12 11C13.1 11 14 11.9 14 13ZM8.5 20V19.5C8.5 17.8 9.94 16.5 12 16.5C14.06 16.5 15.5 17.8 15.5 19.5V20H8.5ZM7 13C7 10.24 9.24 8 12 8C14.76 8 17 10.24 17 13C17 13.91 16.74 14.75 16.31 15.49L17.62 16.25C18.17 15.29 18.5 14.19 18.5 13C18.5 9.42 15.58 6.5 12 6.5C8.42 6.5 5.5 9.42 5.5 13C5.5 14.18 5.82 15.29 6.38 16.25L7.69 15.49C7.26 14.75 7 13.91 7 13ZM2.5 13C2.5 7.75 6.75 3.5 12 3.5C17.25 3.5 21.5 7.75 21.5 13C21.5 14.73 21.03 16.35 20.22 17.75L21.51 18.5C22.45 16.88 23 15 23 13C23 6.93 18.07 2 12 2C5.93 2 1 6.93 1 13C1 15 1.55 16.88 2.48 18.49L3.77 17.74C2.97 16.35 2.5 14.73 2.5 13Z" fill="currentColor"></path></svg>,
     2: <svg width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M11.383 3.07904C11.009 2.92504 10.579 3.01004 10.293 3.29604L6 8.00204H3C2.45 8.00204 2 8.45304 2 9.00204V15.002C2 15.552 2.45 16.002 3 16.002H6L10.293 20.71C10.579 20.996 11.009 21.082 11.383 20.927C11.757 20.772 12 20.407 12 20.002V4.00204C12 3.59904 11.757 3.23204 11.383 3.07904ZM14 5.00195V7.00195C16.757 7.00195 19 9.24595 19 12.002C19 14.759 16.757 17.002 14 17.002V19.002C17.86 19.002 21 15.863 21 12.002C21 8.14295 17.86 5.00195 14 5.00195ZM14 9.00195C15.654 9.00195 17 10.349 17 12.002C17 13.657 15.654 15.002 14 15.002V13.002C14.551 13.002 15 12.553 15 12.002C15 11.451 14.551 11.002 14 11.002V9.00195Z" aria-hidden="true"></path></svg>,
     thread: <svg width="12" height="11" viewBox="0 0 12 11" fill="none"><path d="M11 9H4C2.89543 9 2 8.10457 2 7V1C2 0.447715 1.55228 0 1 0C0.447715 0 0 0.447715 0 1V7C0 9.20914 1.79086 11 4 11H11C11.5523 11 12 10.5523 12 10C12 9.44771 11.5523 9 11 9Z" fill="currentColor"></path></svg>,
-    4: <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M16.59 8.59004L12 13.17L7.41 8.59004L6 10L12 16L18 10L16.59 8.59004Z"></path></svg>
+    4: <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M16.59 8.59004L12 13.17L7.41 8.59004L6 10L12 16L18 10L16.59 8.59004Z"></path></svg>,
+    6: <svg aria-hidden="false" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M21.707 13.293l-11-11C10.519 2.105 10.266 2 10 2H3c-.553 0-1 .447-1 1v7c0 .266.105.519.293.707l11 11c.195.195.451.293.707.293s.512-.098.707-.293l7-7c.391-.391.391-1.023 0-1.414zM7 9c-1.106 0-2-.896-2-2 0-1.106.894-2 2-2 1.104 0 2 .894 2 2 0 1.104-.896 2-2 2z"></path></svg>
 }
 
 const channelIconOverlays = {

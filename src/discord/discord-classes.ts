@@ -18,7 +18,7 @@ export interface DiscordIdentify extends DiscordData<2> {
     }
     compress?: boolean
     presence?: {
-        activities: []
+        activities: {}[]
         afk?: boolean
         since?: number
         status: DiscordStatus
