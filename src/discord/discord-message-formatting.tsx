@@ -5,7 +5,7 @@ import { DiscordClient } from "./DiscordClient";
 import Embed from "./Embed";
 
 const messageSpecialRegex = /(?<br>\n)|(?<a>https?:\/\/([^. ]+\.)*[^ ]+)|(?<emoji_name>:[\W\w_]+:|:[+-]1:)|(?<custom_emoji><a?:[\W\w_]+:\d+>)|(?<mention><@[!&]?\d+>)|(?<everyone>(?<![^\s])@everyone(?![^\s]))|(?<channel><#\d+>)|(?<emoji>\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g
-const markdownRegex = /(?<b>\*\*(?:[^*]|\*[^*])+\*?\*\*)|(?<i>\*[^*]+\*)|(?<u>__(?:[^_]|_[^_])+__)|(?<s>~~(?:[^~]|~[^~])+~~)|(?<c>`[^`\n]+`)/g
+const markdownRegex = /(?<b>\*\*(?:[^*]|\*[^*])+\*?\*\*)|(?<i>\*[^*]+\*)|(?<u>__(?:[^_]|_[^_])+__)|(?<s>~~(?:[^~]|~[^~])+~~)|(?<c>`[^`\n]+`)|(?<cb>```(?:[\w+-]+\n)?(?:[^`]|`[^`]|``[^`])+```)/g
 // |(?<q>(?<![^\n])>\s\w+\n?)
 
 const ChatMessageContent = ({message}: {message: DiscordMessageIn}) => {
@@ -32,10 +32,13 @@ const ChatMessageContent = ({message}: {message: DiscordMessageIn}) => {
         )
     })
 
+    //{message.type}<br/>
+
     return (
         <div className='text message-text' style={{
             marginBottom: 3,
         }}>
+            
             {textResult}
             {embedResult}
             {attachments.length > 0 ? attachments : null}
@@ -84,6 +87,16 @@ function formattedText(text: string, message: DiscordMessageIn): any[] {
             } else if (groups.c) {
                 const l = groups.c.length
                 result.push(<code>{formattedText(text.substring(i + 1, i + l - 1), message)}</code>)
+                length = l
+            } else if (groups.cb) {
+                const l = groups.cb.length
+                result.push(<code style={{ 
+                    display: 'block',
+                    whiteSpace: 'pre',
+                    overflowX: 'scroll',
+                    borderRadius: 4,
+                    border: '1px solid #000000'
+                 }}>{text.substring(i + 3, i + l - 3)}</code>)
                 length = l
             } else if (groups.q) {
                 const l = groups.q.length
