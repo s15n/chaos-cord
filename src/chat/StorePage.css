@@ -1,0 +1,6 @@
+.collapsed {
+    max-height: 300px;
+    overflow: hidden;
+    -webkit-mask: linear-gradient(#000 240px,transparent);
+    mask: linear-gradient(#000 240px,transparent);
+}

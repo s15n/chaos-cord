@@ -78,9 +78,12 @@ export default class Channels extends Component<ChannelsProps> {
     render() {
         return (
             <div style={{
+                height: '100%',
                 width: '100%',
                 flexGrow: 1,
-                color: '#aaaaaa'
+                color: '#aaaaaa',
+                overflowX: 'hidden',
+                overflowY: 'auto',
             }}>
                 <div style={{
                     width: '100%',

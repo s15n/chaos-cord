@@ -9,6 +9,8 @@ import { isMemberListVisible } from './ChatContainer';
 import ChatMessage from './ChatMessage';
 import StorePage from './StorePage';
 
+import './ChatArea.css'
+
 const messageHandler: CallbackHandler<DiscordMessageIn> = {
     callback: noCallback
 }
@@ -18,7 +20,8 @@ export function pushMessage(message: DiscordMessageIn) {
 }
 
 type ChatAreaProps = {
-    channel?: DiscordChannelBase
+    guildId: string
+    channel: DiscordChannelBase
 }
 
 export default class ChatArea extends Component<ChatAreaProps, {
@@ -34,21 +37,18 @@ export default class ChatArea extends Component<ChatAreaProps, {
     render() {
         //if (this.props.newChannel) console.log('New Channel sel.')
         return (
-            <main style={{
-                display: 'flex',
-                flexGrow: 1,
-                flexDirection: 'column-reverse'
-            }}>
+            <main id='chat-area'>
                 {this.props.channel?.type === 6 ? <StorePage channel={this.props.channel as DiscordChannel<6>}/> : <>
                 <Input input={[this.state.input, (set) => this.setState({input: set})]} channel={this.props.channel}/>
-                <Chat channel={this.props.channel}/></>}
+                <Chat guildId={this.props.guildId} channel={this.props.channel}/></>}
             </main>
         )
     }
 }
 
 type ChatProps = {
-    channel?: DiscordChannelBase
+    guildId: string
+    channel: DiscordChannelBase
 }
 
 class Chat extends Component<ChatProps, {
@@ -81,7 +81,12 @@ class Chat extends Component<ChatProps, {
             value.json()
         ).then(messages => {
             if (!Array.isArray(messages)) return
-            this.messages = messages.reverse()
+            this.messages = []
+            for (let i = messages.length - 1; i >= 0; --i) {
+                const m = messages[i]
+                m["guild_id"] = this.props.guildId
+                this.messages.push(m)
+            }
             this.setState({
                 messages: this.messages
             })
@@ -140,7 +145,13 @@ class Chat extends Component<ChatProps, {
             value.json()
         ).then(messages => {
             if (!Array.isArray(messages)) return
-            this.messages.unshift(...messages.reverse())
+            const newMessages: DiscordMessageIn[] = []
+            for (let i = messages.length - 1; i >= 0; --i) {
+                const m = messages[i]
+                m["guild_id"] = this.props.guildId
+                newMessages.push(m)
+            }
+            this.messages.unshift(...newMessages)
             this.setState({
                 messages: this.messages
             })
@@ -208,32 +219,11 @@ class Chat extends Component<ChatProps, {
         }
 
         return (
-            <div style={{
-                height: '100%',
-                width: '100%',
-            }}>
-                <div 
-                style={{
-                    //height: 'calc(100% - 138px)', // 100% - 60px - 48px - 8px - 22px
-                    //width: `calc(100% - ${isMemberListVisible() ? 557 : 317}px`, // 100% - 240px - 240px? - 72px - 5px
-                    display: 'flex',
-                    flex: 1,
-                    flexDirection: 'column-reverse',
-                    overflowX: 'hidden',
-                    overflowY: 'auto',
-                    position: 'fixed',
-                    left: 312,
-                    right: isMemberListVisible() ? 248 : 8,
-                    top: 70,
-                    bottom: 68
-                }}
+            <div id='chat'>
+                <div className={isMemberListVisible() ? 'with-member-list-visible' : undefined}
                 ref={this.scrollArea}
                 onScroll={this.onScroll}
                 >
-                    <div style={{
-                        height: 24,
-                        color: '#ffffff00'
-                    }}>&nbsp;</div>
                     {arr}
                 </div>
             </div>
@@ -242,30 +232,8 @@ class Chat extends Component<ChatProps, {
 }
 
 const ChatMessageDivider = ({date}: {date: Date}) => (
-    <div style={{
-        width: '100%',
-        height: 1,
-        marginLeft: 16,
-        marginRight: 14,
-        marginTop: 24,
-        marginBottom: 8,
-        backgroundColor: 'rgba(255, 255, 255, 0.06)',
-        display: 'inherit',
-        justifyContent: 'center'
-    }}>
-        <span style={{
-            marginTop: -11,
-            height: 13,
-            //alignSelf: "center",
-            paddingLeft: 4,
-            paddingRight: 4,
-            paddingTop: 2,
-            paddingBottom: 2,
-            fontSize: '12px',
-            fontWeight: 600,
-            color: '#777777',
-            backgroundColor: '#272727'
-        }}>
+    <div className='chat-message-divider'>
+        <span>
             {dateToDateString(date)}
         </span>
     </div>
@@ -290,65 +258,22 @@ class Input extends Component<InputProps, {
     }
 
     submit(text: string) {
-        DiscordClient.request('POST', ['channels', this.props.channel?.id ?? 'null', 'message'], {
+        DiscordClient.request('POST', ['channels', this.props.channel?.id ?? 'null', 'messages'], {
             content: text
         })
     }
 
     render() {
         return (
-            <form style={{
-                height: 68,
-                paddingLeft: 16,
-                paddingRight: 16,
-            }}>
-                <div id='ChatInput' className='row' style={{
-                    height: 44,
-                    paddingLeft: 16,
-                    marginBottom: 24,
-                    borderRadius: '8px'
-                }}>
-                    <div style={{
-                        width: 40,
-                        height: '100%'
-                    }}>
-                        <div style={{
-                           marginLeft: -16,
-                           paddingLeft: 16,
-                           paddingRight: 16,
-                           paddingTop: 10,
-                           paddingBottom: 10,
-                           width: 56,
-                           height: 44
-                        }}>
-                            <Button style={{
-                                width: 24,
-                                height: 24,
-                                color: '#cccccc'
-                            }} hoverStyle={{ color: '#dddddd' }} activeStyle={{ color: '#eeeeee' }}>
-                                <svg width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.00098C6.486 2.00098 2 6.48698 2 12.001C2 17.515 6.486 22.001 12 22.001C17.514 22.001 22 17.515 22 12.001C22 6.48698 17.514 2.00098 12 2.00098ZM17 13.001H13V17.001H11V13.001H7V11.001H11V7.00098H13V11.001H17V13.001Z"></path></svg>
-                            </Button>
-                        </div>
-                    </div>
+            <form id="chat-input">
+                <div className='row'>
+                    <button>
+                        <svg width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.00098C6.486 2.00098 2 6.48698 2 12.001C2 17.515 6.486 22.001 12 22.001C17.514 22.001 22 17.515 22 12.001C22 6.48698 17.514 2.00098 12 2.00098ZM17 13.001H13V17.001H11V13.001H7V11.001H11V7.00098H13V11.001H17V13.001Z"></path></svg>
+                    </button>
 
-                    <div style={{
-                        paddingTop: 9,
-                        paddingLeft: 10,
-                        paddingRight: 10,
-                        display: 'flex',
-                        flexGrow: 1,
-                    }}>
+                    <div id="chat-message-input">
                         <textarea
                         ref={this.textAreaRef}
-                        className='text input' 
-                        style={{
-                            backgroundColor: '#ffffff00',
-                            borderWidth: 0,
-                            resize: 'none',
-                            height: 22,
-                            width: '100%',
-                            fontSize: 16,
-                        }}
                         onKeyPress={e => {
                             if (e.key === 'Enter' && !e.shiftKey) {
                                 e.preventDefault()
@@ -366,10 +291,15 @@ class Input extends Component<InputProps, {
                             this.setState({input: e.target.value})
                         }}
                         value={this.state.input}
-                        placeholder='Message #text'
-                        autoFocus={true}
+                        placeholder="Message #text"
+                        autoFocus
+                        spellCheck
                         />
                     </div>
+
+                    <button>
+                        <svg width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M5 3C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3H5ZM16.8995 8.41419L15.4853 6.99998L7 15.4853L8.41421 16.8995L16.8995 8.41419Z"></path></svg>
+                    </button>
 
                     <EmojiButton/>
                 </div>
@@ -379,50 +309,31 @@ class Input extends Component<InputProps, {
 }
 
 class EmojiButton extends Component<{}, {
-    isHoverEmoji: boolean
     emojiIndex: number
 }> {
     constructor(props: {}) {
         super(props)
         this.state = {
-            isHoverEmoji: false,
             emojiIndex: 0x1f973
         }
     }
 
     render() {
-        const isHoverEmoji = this.state.isHoverEmoji
         const emojiIndex = this.state.emojiIndex
         return (
-            <div style={{
-                width: 38,
-                height: '100%',
-                marginRight: 8
-            }}>
-                <div style={{
-                    marginLeft: 4,
-                    paddingLeft: 4 - (isHoverEmoji ? 1 : 0),
-                    paddingTop: 11 - (isHoverEmoji ? 1 : 0)
-                }}>
-                    <Button onHover={over => {
-                        const state: any = over ? { 
-                            isHoverEmoji: true, 
-                            emojiIndex: Math.floor(Math.random() * 0x37) + 0x1f600
-                        } : { isHoverEmoji: false }
-                        this.setState(state)
-                    }}>
-                        <img
-                            style={{
-                                filter: `grayscale(${isHoverEmoji ? 0 : 100}%)`,
-                                width: 22 + (isHoverEmoji ? 2 : 0),
-                                height: 22 + (isHoverEmoji ? 2 : 0),
-                            }}
-                            src={`https://abs-0.twimg.com/emoji/v2/svg/${emojiIndex.toString(16)}.svg`}
-                            alt='emoji'
-                        />
-                    </Button>
-                </div>
-            </div>
+            <button
+            className="emoji-button"
+            onMouseEnter={() => {
+                this.setState({
+                    emojiIndex: Math.floor(Math.random() * 0x37) + 0x1f600
+                })
+            }}
+            >
+                <img
+                src={`https://abs-0.twimg.com/emoji/v2/svg/${emojiIndex.toString(16)}.svg`}
+                alt='emoji'
+                />
+            </button>
         )
     }
 }

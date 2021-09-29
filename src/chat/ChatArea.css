@@ -1,0 +1,120 @@
+@import '../theme.css';
+
+main#chat-area {
+    display: flex;
+    flex-direction: column-reverse;
+    flex-grow: 1;
+}
+
+#chat {
+    width: 100%;
+    height: 100%;
+}
+
+#chat>div {
+    display: flex;
+    flex: 1;
+    flex-direction: column-reverse;
+    overflow: hidden auto;
+    position: fixed;
+    left: 312px;
+    right: 8px;
+    top: 70px;
+    bottom: 68px;
+}
+
+#chat>div.with-member-list-visible {
+    right: 248px;
+}
+
+#chat>div::before {
+    content: '&nbsp;';
+    display: block;
+    height: 24px;
+    color: transparent;
+}
+
+
+.chat-message-divider {
+    width: 100%;
+    height: 1px;
+    margin: 24px 14px 8px 16px;
+    background-color: var(--chat-message-divider-bgcolor);
+    display: inherit;
+    justify-content: center;
+}
+
+.chat-message-divider>span {
+    padding: 0 4px;
+    margin-top: -0.75em;
+    font-size: var(--chat-message-divider-font-size);
+    font-weight: var(--chat-message-divider-font-weight);
+    color: var(--chat-message-divider-font-color);
+    background-color: var(--chat-container-bgcolor);
+}
+
+
+form#chat-input {
+    padding: 0 16px 20px 26px;
+}
+
+#chat-input button {
+    padding-right: 6px;
+    padding-left: 6px;
+}
+
+#chat-input button:first-child {
+    margin-left: -12px;
+    padding-left: 12px;
+}
+
+#chat-input button>svg {
+    width: 24px;
+    height: 24px;
+}
+
+#chat-input button.emoji-button {
+    padding-right: 12px;
+    padding-left: 6px;
+}
+
+#chat-input button.emoji-button>img {
+    width: 22px;
+    height: 22px;
+    filter: grayscale(100%);
+}
+
+#chat-input button.emoji-button:hover>img {
+    filter: grayscale(0%);
+    transform: scale(1.14);
+    -webkit-transition: .1s;
+    transition: .1s;
+}
+
+form#chat-input>div {
+    padding-left: 16px;
+    margin-bottom: 24px;
+    border-radius: 8px;
+    background-color: var(--chat-input-bgcolor);
+}
+
+#chat-message-input {
+    padding: 8px 10px;
+    display: flex;
+    flex-grow: 1;
+}
+
+#chat-message-input textarea {
+    background-color: transparent;
+    border-width: 0;
+    resize: none;
+    width: 100%;
+    height: 1.5em;
+    color: var(--text-color-normal);
+    font-family: inherit;
+    font-size: inherit;
+}
+
+#chat-message-input textarea:focus {
+    outline: none !important;
+}

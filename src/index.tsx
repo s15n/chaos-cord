@@ -1,9 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import isElectron from 'is-electron';
+
+import './index.css';
+import './flex.css';
+import './theme.css';
 
 ReactDOM.render(
   <React.StrictMode>

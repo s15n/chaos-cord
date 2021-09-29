@@ -6,6 +6,8 @@ import ChatArea from './ChatArea';
 import { DiscordChannelBase } from '../discord/discord-classes';
 import Library from '../library/Library';
 
+import './ChatContainer.css'
+
 const memberListHandler: CallbackHandler<boolean> = {
     callback: noCallback
 }
@@ -22,6 +24,7 @@ export function isMemberListVisible() {
 }
 
 type ChatContainerProps = {
+    guildId: string | null
     selectedChannel: DiscordChannelBase | null
 }
 
@@ -50,13 +53,11 @@ export default class ChatContainer extends Component<ChatContainerProps, {
     render() {
         console.log('Re-Rendering Chat Container')
         return (
-            <div id='ChatContainer' className='column' style={{
-                height: '100%'
-            }}>
+            <div id='ChatContainer' className='column'>
                 <Header channelName={this.props.selectedChannel?.name}/>
-                {this.props.selectedChannel ? <div className='row'>
-                    <ChatArea channel={this.props.selectedChannel}/>
-                    {this.state.memberListVisible ? <MemberList/> : null}
+                {this.props.guildId && this.props.selectedChannel ? <div className='row'>
+                    <ChatArea guildId={this.props.guildId} channel={this.props.selectedChannel}/>
+                    {this.state.memberListVisible && this.props.selectedChannel.type !== 6 ? <MemberList/> : null}
                 </div> : <Library/>}
             </div>
         )

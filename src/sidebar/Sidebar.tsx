@@ -22,8 +22,7 @@ export default class Sidebar extends Component<SidebarProps> {
                     display: 'flex',
                     flexGrow: 1,
                     flexDirection: 'column',
-                    overflowX: 'hidden',
-                    overflowY: 'auto'
+                    height: 'calc(100% - 53px)'
                 }}>
                     <div style={{
                         width: 218,
@@ -31,7 +30,8 @@ export default class Sidebar extends Component<SidebarProps> {
                         paddingRight: 16,
                         height: 48,
                         marginBottom: -2,
-                        color: '#eeeeee'
+                        color: '#eeeeee',
+                        flexShrink: 0
                     }}>
                         <h1 style={{
                             width: 186,
@@ -39,7 +39,8 @@ export default class Sidebar extends Component<SidebarProps> {
                             marginTop: 14,
                             fontWeight: 500,
                             fontSize: 15,
-                            overflowX: 'hidden'
+                            overflowX: 'hidden',
+                            overflowY: 'hidden'
                         }}>
                             {this.props.selectedGuild?.name}
                         </h1>

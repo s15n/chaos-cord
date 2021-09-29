@@ -255,6 +255,10 @@ export interface DiscordEmbed {
         height?: number
         proxy_url?: string
     }
+    provider?: {
+        name: string
+        url?: string
+    }
     url?: string
 }
 
@@ -278,8 +282,9 @@ export interface DiscordAttachment {
 
 export interface DiscordUserPartial {
     username: string
-    public_flags: number
+    public_flags?: number
     id: string
     discriminator: string
     avatar: string | null
+    bot?: boolean
 }

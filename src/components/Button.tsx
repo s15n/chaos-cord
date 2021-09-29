@@ -1,4 +1,5 @@
 import { Component, CSSProperties } from 'react'
+import * as restartButton from '@restart/ui/esm/Button'
 
 type ButtonProps = {
     style?: CSSProperties,
@@ -18,7 +19,7 @@ type ButtonState = {
     active: boolean
 }
 
-export type ButtonClickListener = (event: React.MouseEvent<HTMLDivElement, MouseEvent>, ref: Button) => void
+export type ButtonClickListener = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, ref: Button) => void
 export type ButtonHoverListener = (over: boolean, ref: Button) => void
 
 export default class Button extends Component<ButtonProps, ButtonState> {
@@ -35,7 +36,7 @@ export default class Button extends Component<ButtonProps, ButtonState> {
 
     render() {
         return (
-            <div 
+            <restartButton.default 
             style={{
                 cursor: 'pointer',
                 ...this.props.style,
@@ -68,7 +69,7 @@ export default class Button extends Component<ButtonProps, ButtonState> {
             }}
             >
                 {this.props.children}
-            </div>
+            </restartButton.default>
         )
     }
 }

@@ -64,7 +64,7 @@ export class DiscordClient {
         api: string = API_ROOT
     ) {
         const token = window.localStorage.getItem('token')!
-        return fetch(`https://${api}/${route.join('/')}${query ? `?${query.join('&')}` : ""}`, {
+        return fetch(`https://${api}/${route.join('/')}${query.length !== 0 ? `?${query.join('&')}` : ""}`, {
             method: method,
             body: data ? JSON.stringify(data) : undefined,
             headers: {

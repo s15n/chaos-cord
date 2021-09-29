@@ -1,0 +1,29 @@
+:root {
+    --main-color: #dddddd;
+
+    --button-color: #cccccc;
+    --button-color-hover: #dddddd;
+    --button-color-active: #eeeeee;
+
+    --text-color-normal: #f2f2f2;
+
+    --app-bar-color: #131313;
+    --app-bar-icon-color-hover: #7f7f7f7f;
+    --app-bar-icon-color-hover-close: #ff0000;
+
+    --chat-container-bgcolor: #272727;
+    --header-border-color: #131313;
+
+    --chat-message-divider-bgcolor: rgba(255, 255, 255, 0.06);
+    --chat-message-divider-font-size: 0.75em;
+    --chat-message-divider-font-weight: 600;
+    --chat-message-divider-font-color: #777777;
+
+    --chat-input-bgcolor: #333333;
+
+    --header-button-color: #c0c0c0;
+    --header-button-color-hover: #dddddd;
+    --header-button-color-active: #f7f7f7;
+    
+    --header-search-bar-bgcolor: #131313;
+}

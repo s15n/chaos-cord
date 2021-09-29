@@ -137,11 +137,23 @@ export default class Embed extends Component<EmbedProps> {
         ) : null
 
         const video = embed.video ? (
-            <video controls={embed.type !== 'gifv'} autoPlay={embed.type === 'gifv'} loop={embed.type === 'gifv'} src={embed.video.url} style={{
+            embed.type === 'gifv'
+            ? <video autoPlay loop muted src={embed.video.url} style={{
                 width: 400,
                 height: 225,
                 borderRadius: 4
             }} width={embed.video.width} height={embed.video.height} poster={embed.thumbnail?.url}/>
+            : embed.provider?.name
+                ? <iframe src={embed.video.url} style={{
+                    width: 400,
+                    height: 225,
+                    borderRadius: 4,
+                    marginTop: 2,
+                    marginBottom: 2
+                }} width={embed.video.width} height={embed.video.height} allowFullScreen scrolling="no">
+                    <img src={embed.thumbnail?.url} alt=" "/>
+                    </iframe>
+                : null
         ) : null
 
         
@@ -154,6 +166,15 @@ export default class Embed extends Component<EmbedProps> {
             )
         }
 
+        if (embed.type === 'image' && !author && !title && !description && !fields && !footer && !video && image) {
+            return (
+                <div style={{
+                    marginTop: 2,
+                    marginBottom: 2
+                }}>{image}</div>
+            )
+        }
+
         return (
             <div className="Embed" style={{
                 borderColor: embed.color ? colorIntToCss(embed.color) : undefined,
@@ -163,6 +184,7 @@ export default class Embed extends Component<EmbedProps> {
                 marginBottom: 2,
                 maxWidth: embed.image ? 400 : undefined
             }}>
+                {embed.video?.url}
                 {author}
                 {title}
                 {description}

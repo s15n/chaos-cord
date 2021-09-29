@@ -137,12 +137,10 @@ export default class App extends Component<{}, {
     return (
       <div className='full-size'>
         {isElectron() ? <AppBar/> : null}
-        <div className='row' style={{
-          height: isElectron() ? 'calc(100% - 22px)' : '100%',
-        }}>
+        <div id='app-root'>
           <Guilds selectedGuild={this.state.selectedGuild}/>
           <Sidebar selectedGuild={this.state.selectedGuild} selectedChannel={this.state.selectedChannel}/>
-          <ChatContainer selectedChannel={this.state.selectedChannel}/>
+          <ChatContainer guildId={this.state.selectedGuild?.id ?? null} selectedChannel={this.state.selectedChannel}/>
         </div>
       </div>
     )
@@ -150,17 +148,8 @@ export default class App extends Component<{}, {
 }
 
 const AppBar = () => (
-  <div className='AppBar' style={{
-    height: 22,
-    width: '100%',
-    backgroundColor: '#131313',
-    display: 'flex',
-    flexDirection: 'row',
-    color: '#dddddd'
-  }}>
-    <div style={{
-      flexGrow: 1
-    }}>
+  <div id='app-bar'>
+    <div className='flex-grow'>
       ChaosCord
     </div>
     <AppBarIcon action='minimize'>
@@ -176,25 +165,9 @@ const AppBar = () => (
 )
 
 const AppBarIcon = ({ children, action }: { children: any, action: 'minimize' | 'maximize' | 'close' }) => (
-  <Button
-  style={{
-    width: 28,
-    height: 22
-  }}
-  hoverStyle={{
-    backgroundColor: action === 'close' ? '#ff0000' : '#7f7f7f7f'
-  }}
+  <button className={action === 'close' ? 'app-bar-icon app-bar-icon-close' : 'app-bar-icon'}
   onClick={() => window.electron.windowButton(action) }
   >
-    <div 
-    style={{
-      width: 12,
-      height: 12,
-      marginLeft: 7,
-      marginRight: 7,
-    }}
-    >
-      {children}
-    </div>
-  </Button>
+    {children}
+  </button>
 )
