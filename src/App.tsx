@@ -6,13 +6,13 @@ import ChatContainer from './chat/ChatContainer'
 import isElectron from 'is-electron'
 import Button from './components/Button'
 import { DiscordClient } from './discord/DiscordClient'
-import { DiscordChannelBase, DiscordGuild, DiscordIDK, DiscordRequestGuildMembers } from './discord/discord-classes'
+import { DiscordChannelBase, DiscordGuildData, DiscordIDK, DiscordRequestGuildMembers } from './discord/discord-classes'
 import { CallbackHandler, noCallback } from './Callback'
 
-const selectedGuildCH: CallbackHandler<DiscordGuild | null> = {
+const selectedGuildCH: CallbackHandler<DiscordGuildData | null> = {
   callback: noCallback
 }
-export function selectGuild(guild: DiscordGuild | null) {
+export function selectGuild(guild: DiscordGuildData | null) {
   console.log(`Select Guild: ${guild?.name}`)
   selectedGuildCH.callback(guild)
 }
@@ -38,7 +38,7 @@ const keyListener = (e: KeyboardEvent) => {
 }
 
 export default class App extends Component<{}, {
-  selectedGuild: DiscordGuild | null
+  selectedGuild: DiscordGuildData | null
   selectedChannel: DiscordChannelBase | null
 }> {
   private discordClient?: DiscordClient
@@ -51,7 +51,7 @@ export default class App extends Component<{}, {
     }
   }
 
-  private currentGuild: DiscordGuild | null = null
+  private currentGuild: DiscordGuildData | null = null
 
   private selectedChannels: Map<string, string[]> = new Map()
   private selectedChannelsPayload: Map<string, { [name: string]: [[0, 99]] }> = new Map()
@@ -61,23 +61,17 @@ export default class App extends Component<{}, {
     window.addEventListener('keypress', keyListener)
 
     selectedChannelCH.callback = channel => {
-      console.log('Selecting Channel!')
-
       if (this.currentGuild && channel?.id) {
         const guildId = this.currentGuild.id
 
         window.localStorage.setItem(`selected_channel_${guildId}`, channel.id)
 
-        console.log(this.selectedChannels)
-        console.log(this.selectedChannelsPayload)
         let scs = this.selectedChannels.get(guildId)
         if (scs === undefined) {
           scs = []
           this.selectedChannels.set(guildId, [])
           this.selectedChannelsPayload.set(guildId, {})
         }
-        //console.error(scs)
-        //console.warn(channel.id !in scs)
         if (!scs.includes(channel.id)) {
           scs.push(channel.id)
           const p = this.selectedChannelsPayload.get(guildId)!
@@ -100,7 +94,6 @@ export default class App extends Component<{}, {
       this.setState({ selectedChannel: channel })
     }
     selectedGuildCH.callback = guild => {
-      console.log('Selecting guild')
       this.setState({ selectedGuild: guild })
       const scId = window.localStorage.getItem(`selected_channel_${guild?.id}`)
       const sc = (scId !== undefined ? guild?.channels?.find(c => c.id === scId) : undefined) ?? guild?.channels[0]
@@ -149,7 +142,7 @@ export default class App extends Component<{}, {
 
 const AppBar = () => (
   <div id='app-bar'>
-    <div className='flex-grow'>
+    <div className='flex-grow drag'>
       ChaosCord
     </div>
     <AppBarIcon action='minimize'>

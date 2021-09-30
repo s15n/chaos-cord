@@ -100,9 +100,9 @@ class Chat extends Component<ChatProps, {
 
     private setCallback() {
         messageHandler.callback = (message) => {
-            console.log(message.channel_id)
-            console.log(this.props.channel?.id)
-            console.log('#####')
+            //console.log(message.channel_id)
+            //console.log(this.props.channel?.id)
+            //console.log('#####')
             if (message.channel_id !== this.channelId) return
 
             this.setState({

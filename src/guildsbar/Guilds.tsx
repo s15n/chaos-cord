@@ -1,23 +1,23 @@
 import { Component } from "react";
 import { selectGuild } from "../App";
 import { CallbackHandler, noCallback } from "../Callback";
-import { DiscordGuild } from "../discord/discord-classes";
+import { DiscordGuildData } from "../discord/discord-classes";
 import "./Guilds.css"
 
-const guildsCallback: CallbackHandler<DiscordGuild[]> = {
+const guildsCallback: CallbackHandler<DiscordGuildData[]> = {
     callback: noCallback
 }
 
-export function setGuilds(guilds: DiscordGuild[]) {
+export function setGuilds(guilds: DiscordGuildData[]) {
     guildsCallback.callback(guilds)
 }
 
 type GuildsProps = {
-    selectedGuild: DiscordGuild | null
+    selectedGuild: DiscordGuildData | null
 }
 
 type GuildsState = {
-    guilds: DiscordGuild[]
+    guilds: DiscordGuildData[]
 }
 
 export default class Guilds extends Component<GuildsProps, GuildsState> {
@@ -28,7 +28,7 @@ export default class Guilds extends Component<GuildsProps, GuildsState> {
         }
     }
 
-    _setGuilds = (guilds: DiscordGuild[]) => this.setState ({
+    _setGuilds = (guilds: DiscordGuildData[]) => this.setState ({
         guilds: guilds
     })
 
@@ -75,12 +75,12 @@ export default class Guilds extends Component<GuildsProps, GuildsState> {
 }
 
 class GuildIcon extends Component<{
-    guild?: DiscordGuild
+    guild?: DiscordGuildData
     selected: boolean
 }, {
     hover: boolean
 }> {
-    constructor(props: { guild?: DiscordGuild, selected: boolean }) {
+    constructor(props: { guild?: DiscordGuildData, selected: boolean }) {
         super(props)
         this.state = {
             hover: false
@@ -90,7 +90,7 @@ class GuildIcon extends Component<{
     _image() {
         return this.props.guild ? (
             <img
-            src={`https://cdn.discordapp.com/icons/${this.props.guild.id}/${this.props.guild.icon}.png?size=128`}
+            src={(this.props.selected || this.state.hover) && this.props.guild.icon?.startsWith('a_') ? `https://cdn.discordapp.com/icons/${this.props.guild.id}/${this.props.guild.icon}.gif?size=96` : `https://cdn.discordapp.com/icons/${this.props.guild.id}/${this.props.guild.icon}.webp?size=96`}
             alt={this.props.guild.name}
             style={{
                 width: '100%',
@@ -104,7 +104,7 @@ class GuildIcon extends Component<{
                 width: '100%',
                 height: '100%',
                 borderRadius: this.props.selected || this.state.hover ? 18 : 24,
-                backgroundColor: this.props.selected || this.state.hover ? '#4e5d94' : '#7f7f7f7f',
+                backgroundColor: this.props.selected || this.state.hover ? '#7289da' : '#7f7f7f7f',
                 color: '#cccccc',
                 //marginTop: 14
             }}>

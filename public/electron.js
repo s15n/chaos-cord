@@ -1,7 +1,7 @@
 const path = require('path');
 const spawn = require('child_process').spawn;
 
-const { app, BrowserWindow, ipcMain, globalShortcut } = require('electron')
+const { app, BrowserWindow, ipcMain, globalShortcut, Tray } = require('electron')
 let isDev;
 try { isDev = require('electron-is-dev'); }
 catch { isDev = false; }
@@ -16,10 +16,12 @@ function createWindow() {
         height: 720,
         frame: false,
         backgroundColor: '#272727',
+        paintWhenInitiallyHidden: false,
         webPreferences: {
             nodeIntegration: true,
             preload: __dirname + '/preload.js'
-        }
+        },
+        icon: __dirname + '/favicon.ico'
     });
 
     window.loadURL(
@@ -28,24 +30,12 @@ function createWindow() {
             : `file://${path.join(__dirname, '../build/index.html')}`
     );
 
-    if (isDev) {
-        //window.webContents.openDevTools({ mode: 'detach' });
-    }
-
     window.setMenu(null);
-    //window.maximize();
+
+    window.setOverlayIcon(new Tray(__dirname + '/badge-11.ico'))
 }
 
-app.whenReady()/*.then(() => {
-    globalShortcut.register('F5', () => {
-      console.log('Reloading...');
-      window.reload();
-    });
-    globalShortcut.register('CommandOrControl+Shift+I', () => {
-      console.log('Opening dev tools...');
-      window.webContents.openDevTools();
-    });
-})*/.then(createWindow);
+app.whenReady().then(createWindow);
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
@@ -85,6 +75,7 @@ ipcMain.on('dev-tools', () => {
 ipcMain.on('reload-page', () => {
     console.log('Reloading...');
     window.reload();
+    //window.setOverlayIcon(__dirname + '/assets/badge-11.ico', 'unread')
 });
 
 ipcMain.on('open-game-url', (_, url) => {

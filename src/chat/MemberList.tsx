@@ -62,7 +62,7 @@ type MemberProps = {
 
 class Member extends Component<MemberProps> {
     render() {
-        const { image, name } = getMember(this.props.member)
+        const { image, name, status } = getMember(this.props.member)
         return (
             <div style={{
                 width: 224,
@@ -78,14 +78,30 @@ class Member extends Component<MemberProps> {
                     paddingLeft: 8,
                     paddingRight: 8,
                 }}>
-                    <img src={image} alt={name} style={{
+                    <div role="img" aria-label="T0tallyR3al, Online" style={{
+                        width: 32,
+                        height: 32,
+                        marginRight: 12,
+                        marginTop: 8,
+                        float: 'left'
+                    }}>
+                        <svg width="40" height="32" viewBox="0 0 40 32">
+                            <mask id="svg-mask-avatar-status-round-32"><rect width="40" height="32" fill="white"></rect><circle cx="27" cy="27" r="7" fill="black"></circle></mask>
+                            <foreignObject x="0" y="0" width="32" height="32" mask="url(#svg-mask-avatar-status-round-32)">
+                                <div><img width="32" height="32" src={image} alt=" " style={{ borderRadius: '100%' }}/></div>
+                            </foreignObject>
+                            <mask id="svg-mask-status-online"><circle fill="white" r="5" cx="27" cy="27"></circle></mask>
+                            <rect width="10" height="10" x="22" y="22" fill={status === 'online' ? 'rgb(59, 165, 93)' : status === 'idle' ? 'rgb(250, 168, 26)' : status === 'dnd' ? 'rgb(237, 66, 69)' : status === 'streaming' ? 'rgb(89, 54, 149)' : '#7f7f7f'} mask="url(#svg-mask-status-online)"/>
+                        </svg>
+                    </div>
+                    {/*<img src={image} alt={name} style={{
                         width: 32,
                         height: 32,
                         marginRight: 12,
                         marginTop: 8,
                         borderRadius: '100%',
                         float: 'left'
-                    }}/>
+                    }}/>*/}
                     <span style={{
                         height: 18,
                         marginTop: 13,
@@ -94,50 +110,6 @@ class Member extends Component<MemberProps> {
                 </div>
             </div>
         )
-
-        /*
-        <View style={membersListStyles.memberContainer1}>
-            <View style={membersListStyles.memberContainer2}>
-                <View style={{
-                    width: 32,
-                    height: 32,
-                    marginRight: 12,
-                    marginTop: 8,
-                }}>
-                    <Image style={membersListStyles.avatar} source={image}/>
-                    {/*<svg width="40" height="32" viewBox="0 0 40 32" class="mask-1l8v16 svg-2V3M55" aria-hidden="true"><foreignObject x="0" y="0" width="32" height="32" mask="url(#svg-mask-avatar-status-round-32)"><div class="avatarStack-2Dr8S9"><img src="https://cdn.discordapp.com/avatars/353603367907360768/fb1949c8f45cbec1d2568d4bab9e874e.webp?size=128" alt=" " class="avatar-VxgULZ" aria-hidden="true"/></div></foreignObject><rect width="10" height="10" x="22" y="22" fill="hsl(139, calc(var(--saturation-factor, 1) * 47.3%), 43.9%)" mask="url(#svg-mask-status-online)" class="pointerEvents-2zdfdO"></rect></svg>*//*
-                    </View>
-                    <View style={{
-                        width: '100%',
-                        height: 18,
-                        marginVertical: 12
-                    }}>
-                        <Text style={[universalStyle.text, membersListStyles.username]}>{name}</Text>
-                    </View>
-                </View>
-            </View>*/
-
-            /*
-            memberContainer1: {
-            width: 224,
-            height: 42,
-            marginLeft: 8,
-            paddingVertical: 1
-        },
-        memberContainer2: {
-            paddingHorizontal: 8,
-            flexDirection: "row"
-        },
-        avatar: {
-            width: 32,
-            height: 32,
-            borderRadius: '50%'
-        },
-        username: {
-            color: colors.infoText,
-            fontSize: '16px',
-            fontWeight: 500
-        }*/
     }
 }
 
@@ -146,7 +118,8 @@ function getMember(member: any) {
     const image = avatar ? `https://cdn.discordapp.com/avatars/${member.user.id}/${avatar}.webp?size=128` : `https://cdn.discordapp.com/embed/avatars/${Number.parseInt(member.user.discriminator) % 5}.png`
     return {
         image: image,
-        name: member.nick ?? member.user.username
+        name: member.nick ?? member.user.username,
+        status: member.presence.status
     }
 }
 

@@ -18,6 +18,12 @@
   flex-direction: row;
 }
 
+.drag {
+  -webkit-user-select: none;
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
 .app-bar-icon {
   width: 28px;
   height: 22px;

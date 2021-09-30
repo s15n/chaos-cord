@@ -1,4 +1,4 @@
-import { DiscordGuild, DiscordUserPartial } from "./discord-classes";
+import { DiscordGuildData, DiscordUserPartial } from "./discord-classes";
 import { DiscordWs } from "./ws/DiscordWs";
 
 export class DiscordClient {
@@ -12,7 +12,7 @@ export class DiscordClient {
     private guilds: Map<string, DiscordGuildPlus> = new Map()
     private users: Map<string, DiscordUserPartial> = new Map()
 
-    setGuilds(guilds: DiscordGuild[]) {
+    setGuilds(guilds: DiscordGuildData[]) {
         this.guilds.clear()
         guilds.forEach(g => {
             this.guilds.set(g.id, new DiscordGuildPlus(this, g))
@@ -50,7 +50,7 @@ export class DiscordClient {
         this.ws.close()
     }
 
-    static getRole(guild: DiscordGuild | undefined, id: string) {
+    static getRole(guild: DiscordGuildData | undefined, id: string) {
         if (!guild) return undefined
         return guild.roles.find(r => r.id === id)
     }
@@ -79,8 +79,8 @@ const API_ROOT = "discord.com/api/v9"
 
 class DiscordGuildPlus {
     client: DiscordClient
-    data: DiscordGuild
-    constructor(client: DiscordClient, data: DiscordGuild) {
+    data: DiscordGuildData
+    constructor(client: DiscordClient, data: DiscordGuildData) {
         this.client = client
         this.data = data
     }

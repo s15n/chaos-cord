@@ -66,7 +66,7 @@ type Browser = 'Chrome'
 
 export type DiscordStatus = 'online' | 'idle' | 'dnd' | 'invisible' | 'offline'
 
-export interface DiscordGuild {
+export interface DiscordGuildData {
     default_message_notifications: number
     afk_channel_id: string | null
     public_updates_channel_id: string | null
@@ -111,6 +111,33 @@ export interface DiscordGuild {
     guild_hashes: any
     emojis: any[]
 }
+
+type DiscordGuildFeature =
+    | 'ANIMATED_ICON'
+    | 'BANNER'
+    | 'COMMERCE'
+    | 'COMMUNITY'
+    | 'DISCOVERABLE'
+    | 'ENABLED_DISCOVERABLE_BEFORE'
+    | 'FEATURABLE'
+    | 'INVITE_SPLASH'
+    | 'MEMBER_VERIFICATION_GATE_ENABLED'
+    | 'MONETIZATION_ENABLED'
+    | 'MORE_STICKERS'
+    | 'NEWS'
+    | 'NEW_THREAD_PERMISSIONS'
+    | 'PARTNERED'
+    | 'PREVIEW_ENABLED'
+    | 'PRIVATE_THREADS'
+    | 'ROLE_ICONS'
+    | 'SEVEN_DAY_THREAD_ARCHIVE'
+    | 'THREADS_ENABLED'
+    | 'THREE_DAY_THREAD_ARCHIVE'
+    | 'TICKETED_EVENTS_ENABLED'
+    | 'VANITY_URL'
+    | 'VERIFIED'
+    | 'VIP_REGIONS'
+    | 'WELCOME_SCREEN_ENABLED'
 
 /*
 "guild_hashes": {

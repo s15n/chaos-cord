@@ -30,7 +30,8 @@ export default class StorePage extends Component<StorePageProps, StorePageState>
         DiscordClient.request('GET', ['channels', this.props.channel.id, 'store-listing'], undefined, undefined, ['country_code=US']).then(value => 
             value.json()
         ).then(page => {
-            this.setState({ page: page })
+            if (page.sku)
+                this.setState({ page: page })
         })
     }
 

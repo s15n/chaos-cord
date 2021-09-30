@@ -78,17 +78,32 @@ form#chat-input {
     padding-left: 6px;
 }
 
+@keyframes emoji-hover-animation {
+    0% {
+        filter: grayscale(100%);
+        transform: scale(1);
+    }
+    70% {
+        filter: grayscale(0%);
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1.14);
+    }
+}
+
 #chat-input button.emoji-button>img {
+    filter: grayscale(100%);
     width: 22px;
     height: 22px;
-    filter: grayscale(100%);
 }
 
 #chat-input button.emoji-button:hover>img {
     filter: grayscale(0%);
     transform: scale(1.14);
-    -webkit-transition: .1s;
-    transition: .1s;
+    animation-name: emoji-hover-animation;
+    animation-duration: 100ms;
+    animation-iteration-count: 1;
 }
 
 form#chat-input>div {

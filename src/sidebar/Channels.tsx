@@ -1,9 +1,9 @@
 import { Component, memo } from 'react'
 import { selectChannel } from '../App'
-import { DiscordChannelBase, DiscordGuild } from '../discord/discord-classes'
+import { DiscordChannelBase, DiscordGuildData } from '../discord/discord-classes'
 
 type ChannelsProps = {
-    guild: DiscordGuild
+    guild: DiscordGuildData
     selectedChannel?: DiscordChannelBase
 }
 

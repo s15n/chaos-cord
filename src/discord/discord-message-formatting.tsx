@@ -5,7 +5,7 @@ import { DiscordMessageIn } from "./discord-classes";
 import { DiscordClient } from "./DiscordClient";
 import Embed from "./Embed";
 
-const messageSpecialRegex = /(?<br>\n)|(?<a>https?:\/\/([^. ]+\.)*[^ ]+)|(?<emoji_name>:[\w_]+:|:[+-]1:)|(?<custom_emoji><a?:[\w_]+:\d+>)|(?<mention><@[!&]?\d+>)|(?<everyone>(?<![^\s])@everyone(?![^\s]))|(?<channel><#\d+>)|(?<emoji>\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g
+const messageSpecialRegex = /(?<br>\n)|(?<a>https?:\/\/([^. <>]+\.)*[^ <>]+)|(?<emoji_name>:[\w_]+:|:[+-]1:)|(?<custom_emoji><a?:[\w_]+:\d+>)|(?<mention><@[!&]?\d+>)|(?<everyone>(?<![^\s])@everyone(?![^\s]))|(?<channel><#\d+>)|(?<emoji>\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g
 const markdownRegex = /(?<b>\*\*(?:[^*]|\*[^*])+\*?\*\*)|(?<i>\*[^*]+\*)|(?<u>__(?:[^_]|_[^_])+__)|(?<s>~~(?:[^~]|~[^~])+~~)|(?<c>`[^`\n]+`)|(?<cb>```(?:[\w+-]+\n)?(?:[^`]|`[^`]|``[^`])+```)/g
 // |(?<q>(?<![^\n])>\s\w+\n?)
 
@@ -42,7 +42,7 @@ const ChatMessageContent = ({message}: {message: DiscordMessageIn}) => {
         <div className='text message-text' style={{
             marginBottom: 3,
         }}>
-            {message.type}<br/>
+            
             {textResult}
             {embedResult}
             {attachments.length > 0 ? attachments : null}
