@@ -25,7 +25,7 @@ export interface DiscordIdentify extends DiscordData<2> {
     }
     properties: {
         os: Os
-        browser: Browser
+        browser?: Browser
         device?: string
         system_locale?: string
         browser_user_agent?: string

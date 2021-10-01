@@ -3,7 +3,7 @@ import { CallbackHandler, noCallback } from '../Callback'
 import Header from './Header';
 import MemberList from './MemberList';
 import ChatArea from './ChatArea';
-import { DiscordChannelBase } from '../discord/discord-classes';
+import { DiscordChannelBase, DiscordGuildData } from '../discord/discord-classes';
 import Library from '../library/Library';
 
 import './ChatContainer.css'
@@ -24,7 +24,7 @@ export function isMemberListVisible() {
 }
 
 type ChatContainerProps = {
-    guildId: string | null
+    guild: DiscordGuildData | null
     selectedChannel: DiscordChannelBase | null
 }
 
@@ -55,9 +55,9 @@ export default class ChatContainer extends Component<ChatContainerProps, {
         return (
             <div id='ChatContainer' className='column'>
                 <Header channelName={this.props.selectedChannel?.name}/>
-                {this.props.guildId && this.props.selectedChannel ? <div className='row'>
-                    <ChatArea guildId={this.props.guildId} channel={this.props.selectedChannel}/>
-                    {this.state.memberListVisible && this.props.selectedChannel.type !== 6 ? <MemberList/> : null}
+                {this.props.guild?.id && this.props.selectedChannel ? <div className='row'>
+                    <ChatArea guildId={this.props.guild?.id} channel={this.props.selectedChannel}/>
+                    {this.state.memberListVisible && this.props.selectedChannel.type !== 6 ? <MemberList channel={this.props.selectedChannel} guild={this.props.guild}/> : null}
                 </div> : <Library/>}
             </div>
         )

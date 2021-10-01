@@ -133,7 +133,7 @@ export default class App extends Component<{}, {
         <div id='app-root'>
           <Guilds selectedGuild={this.state.selectedGuild}/>
           <Sidebar selectedGuild={this.state.selectedGuild} selectedChannel={this.state.selectedChannel}/>
-          <ChatContainer guildId={this.state.selectedGuild?.id ?? null} selectedChannel={this.state.selectedChannel}/>
+          <ChatContainer guild={this.state.selectedGuild ?? null} selectedChannel={this.state.selectedChannel}/>
         </div>
       </div>
     )
