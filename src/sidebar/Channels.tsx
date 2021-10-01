@@ -1,9 +1,10 @@
 import { Component, memo } from 'react'
 import { selectChannel } from '../App'
-import { DiscordChannelBase, DiscordGuildData } from '../discord/discord-classes'
+import { DiscordGuild } from '../discord/classes/DiscordGuild'
+import { DiscordChannelBase } from '../discord/discord-classes'
 
 type ChannelsProps = {
-    guild: DiscordGuildData
+    guild: DiscordGuild
     selectedChannel?: DiscordChannelBase
 }
 
@@ -16,7 +17,7 @@ export default class Channels extends Component<ChannelsProps> {
         const channels = this.props.guild.channels
         //channels.forEach(c => console.log(`${c.name} (${c.type}): ${c.position} [${!!c.parent_id}]`))
         //;([...channels].sort((a, b) => a.position - b.position)).forEach(c => console.log(`${c.name} (${c.type}): ${c.position} [${!!c.parent_id}]`))
-        const rulesChannelId = this.props.guild.rules_channel_id
+        const rulesChannelId = this.props.guild.rulesChannelId
 
         type SC = {
             cid: string
@@ -26,7 +27,12 @@ export default class Channels extends Component<ChannelsProps> {
         }
         const struct: SC[] = []
 
-        for (const channel of channels) {
+        const iter = channels.fetchAll().entries()
+        while (true) {
+            const next = iter.next()
+            if (next.done) break
+            const channel = next.value[1]
+
             if (channel.parent_id && (channel.type < 10 || channel.type > 12)) {
                 let parent = struct.find(sc => sc.cid === channel.parent_id)
                 if (!parent) {

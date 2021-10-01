@@ -1,6 +1,7 @@
 import { Component } from 'react'
 import { CallbackHandler, noCallback } from '../Callback'
-import { DiscordChannelBase, DiscordGuildData } from '../discord/discord-classes'
+import { DiscordGuild } from '../discord/classes/DiscordGuild'
+import { DiscordChannelBase } from '../discord/discord-classes'
 
 const membersCH: CallbackHandler<any[]> = {
     callback: noCallback
@@ -12,7 +13,7 @@ export function updateMembers(members: any[]) {
 
 type MemberListProps = {
     channel?: DiscordChannelBase
-    guild?: DiscordGuildData
+    guild?: DiscordGuild
 }
 
 type MemberListState = {
@@ -56,7 +57,7 @@ export default class MemberList extends Component<MemberListProps, MemberListSta
                         const notOffline = m.presence.status !== 'offline'
                         if ((hoistCache !== m.hoisted_role || !notOffline) && !atOffline) {
                             hoistCache = m.hoisted_role
-                            const title = notOffline ? (hoistCache === null ? 'ONLINE' : this.props.guild?.roles.find(r => r.id === hoistCache)?.name?.toUpperCase()) : 'OFFLINE'
+                            const title = notOffline ? (hoistCache === null ? 'ONLINE' : hoistCache) : 'OFFLINE'
                             if (!notOffline) {
                                 atOffline = true
                             }

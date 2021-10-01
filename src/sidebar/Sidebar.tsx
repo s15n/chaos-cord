@@ -1,10 +1,11 @@
 import { Component, memo } from 'react'
-import { DiscordChannelBase, DiscordGuildData } from '../discord/discord-classes'
+import { DiscordGuild } from '../discord/classes/DiscordGuild'
+import { DiscordChannelBase } from '../discord/discord-classes'
 import Channels from './Channels'
 import MainPage from './MainPage'
 
 type SidebarProps = {
-    selectedGuild: DiscordGuildData | null
+    selectedGuild: DiscordGuild | null
     selectedChannel: DiscordChannelBase | null
 }
 

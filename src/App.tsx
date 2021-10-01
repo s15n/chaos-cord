@@ -6,13 +6,14 @@ import ChatContainer from './chat/ChatContainer'
 import isElectron from 'is-electron'
 import Button from './components/Button'
 import { DiscordClient } from './discord/DiscordClient'
-import { DiscordChannelBase, DiscordGuildData, DiscordIDK, DiscordRequestGuildMembers } from './discord/discord-classes'
+import { DiscordChannelBase, DiscordIDK, DiscordRequestGuildMembers } from './discord/discord-classes'
 import { CallbackHandler, noCallback } from './Callback'
+import { DiscordGuild } from './discord/classes/DiscordGuild'
 
-const selectedGuildCH: CallbackHandler<DiscordGuildData | null> = {
+const selectedGuildCH: CallbackHandler<DiscordGuild | null> = {
   callback: noCallback
 }
-export function selectGuild(guild: DiscordGuildData | null) {
+export function selectGuild(guild: DiscordGuild | null) {
   console.log(`Select Guild: ${guild?.name}`)
   selectedGuildCH.callback(guild)
 }
@@ -38,7 +39,7 @@ const keyListener = (e: KeyboardEvent) => {
 }
 
 export default class App extends Component<{}, {
-  selectedGuild: DiscordGuildData | null
+  selectedGuild: DiscordGuild | null
   selectedChannel: DiscordChannelBase | null
 }> {
   private discordClient?: DiscordClient
@@ -51,7 +52,7 @@ export default class App extends Component<{}, {
     }
   }
 
-  private currentGuild: DiscordGuildData | null = null
+  private currentGuild: DiscordGuild | null = null
 
   private selectedChannels: Map<string, string[]> = new Map()
   private selectedChannelsPayload: Map<string, { [name: string]: [[0, 99]] }> = new Map()
@@ -96,7 +97,8 @@ export default class App extends Component<{}, {
     selectedGuildCH.callback = guild => {
       this.setState({ selectedGuild: guild })
       const scId = window.localStorage.getItem(`selected_channel_${guild?.id}`)
-      const sc = (scId !== undefined ? guild?.channels?.find(c => c.id === scId) : undefined) ?? guild?.channels[0]
+      console.log(guild)
+      const sc = (scId ? guild?.channels?.fetch(scId) as DiscordChannelBase : undefined) ?? guild?.channels?.fetchAll().values().next().value as DiscordChannelBase
       this.currentGuild = guild
       if (sc) selectChannel(sc)
     }

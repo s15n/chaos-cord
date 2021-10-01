@@ -1,23 +1,23 @@
 import { Component } from "react";
 import { selectGuild } from "../App";
 import { CallbackHandler, noCallback } from "../Callback";
-import { DiscordGuildData } from "../discord/discord-classes";
+import { DiscordGuild } from "../discord/classes/DiscordGuild";
 import "./Guilds.css"
 
-const guildsCallback: CallbackHandler<DiscordGuildData[]> = {
+const guildsCallback: CallbackHandler<DiscordGuild[]> = {
     callback: noCallback
 }
 
-export function setGuilds(guilds: DiscordGuildData[]) {
+export function setGuilds(guilds: DiscordGuild[]) {
     guildsCallback.callback(guilds)
 }
 
 type GuildsProps = {
-    selectedGuild: DiscordGuildData | null
+    selectedGuild: DiscordGuild | null
 }
 
 type GuildsState = {
-    guilds: DiscordGuildData[]
+    guilds: DiscordGuild[]
 }
 
 export default class Guilds extends Component<GuildsProps, GuildsState> {
@@ -28,7 +28,7 @@ export default class Guilds extends Component<GuildsProps, GuildsState> {
         }
     }
 
-    _setGuilds = (guilds: DiscordGuildData[]) => this.setState ({
+    _setGuilds = (guilds: DiscordGuild[]) => this.setState ({
         guilds: guilds
     })
 
@@ -75,12 +75,12 @@ export default class Guilds extends Component<GuildsProps, GuildsState> {
 }
 
 class GuildIcon extends Component<{
-    guild?: DiscordGuildData
+    guild?: DiscordGuild
     selected: boolean
 }, {
     hover: boolean
 }> {
-    constructor(props: { guild?: DiscordGuildData, selected: boolean }) {
+    constructor(props: { guild?: DiscordGuild, selected: boolean }) {
         super(props)
         this.state = {
             hover: false

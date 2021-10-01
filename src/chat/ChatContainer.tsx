@@ -3,10 +3,11 @@ import { CallbackHandler, noCallback } from '../Callback'
 import Header from './Header';
 import MemberList from './MemberList';
 import ChatArea from './ChatArea';
-import { DiscordChannelBase, DiscordGuildData } from '../discord/discord-classes';
+import { DiscordChannelBase } from '../discord/discord-classes';
 import Library from '../library/Library';
 
 import './ChatContainer.css'
+import { DiscordGuild } from '../discord/classes/DiscordGuild';
 
 const memberListHandler: CallbackHandler<boolean> = {
     callback: noCallback
@@ -24,7 +25,7 @@ export function isMemberListVisible() {
 }
 
 type ChatContainerProps = {
-    guild: DiscordGuildData | null
+    guild: DiscordGuild | null
     selectedChannel: DiscordChannelBase | null
 }
 

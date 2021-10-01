@@ -1,5 +1,6 @@
 import { setGuilds } from "../../../guildsbar/Guilds";
-import { DiscordGuildData, DiscordUserPartial } from "../../discord-classes";
+import { DiscordGuild } from "../../classes/DiscordGuild";
+import { DiscordUserPartial } from "../../discord-classes";
 import { DiscordClient } from "../../DiscordClient";
 
 export default function onReady(client: DiscordClient, d: {
@@ -19,11 +20,11 @@ export default function onReady(client: DiscordClient, d: {
     client.ws.sessionId = d.session_id
 
     const user = d.user
-    let guilds: DiscordGuildData[] = d.guilds
+    let guilds: DiscordGuild[] = d.guilds.map(data => new DiscordGuild(client, data))
 
     const guildPositions = d.user_settings.guild_positions
     if (guildPositions.length !== 0) {
-        const temp: DiscordGuildData[] = []
+        const temp: DiscordGuild[] = []
         guildPositions.forEach((id, index) => {
             const guildIndex = guilds.findIndex(g => g.id === id)
             if (guildIndex !== -1) {
