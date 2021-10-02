@@ -1,5 +1,7 @@
 import { DiscordGuild } from "./classes/DiscordGuild";
+import { CachedManager } from "./classes/util";
 import { DiscordUserPartial } from "./discord-classes";
+import { DiscordVoiceWs } from "./voice/DiscordVoiceWs";
 import { DiscordWs } from "./ws/DiscordWs";
 
 export class DiscordClient {
@@ -10,37 +12,17 @@ export class DiscordClient {
 
     readonly ws = new DiscordWs(this)
 
-    private guilds: Map<string, DiscordGuildPlus> = new Map()
-    private users: Map<string, DiscordUserPartial> = new Map()
+    private guilds: CachedManager<DiscordGuild> = new CachedManager(this)
 
     setGuilds(guilds: DiscordGuild[]) {
         this.guilds.clear()
         guilds.forEach(g => {
-            this.guilds.set(g.id, new DiscordGuildPlus(this, g))
+            this.guilds.cache.set(g.id, g)
         })
     }
 
     getGuild(id: string) {
-        return this.getGuildPlus(id)?.data
-    }
-
-    getGuildPlus(id: string) {
-        return this.guilds.get(id)
-    }
-
-    setUsers(users: DiscordUserPartial[]) {
-        this.users.clear()
-        users.forEach(u => this.users.set(u.id, u))
-    }
-
-    get userIds() {
-        const a: string[] = []
-        this.users.forEach(u => a.push(u.id))
-        return a
-    }
-
-    getUser(id: string) {
-        return this.users.get(id)
+        return this.guilds.resolve(id)
     }
 
     login() {
@@ -48,12 +30,18 @@ export class DiscordClient {
     }
 
     close() {
+        this.voiceWs?.close()
         this.ws.close()
     }
 
-    static getRole(guild: DiscordGuild | undefined, id: string) {
-        if (!guild) return undefined
-        return guild.data.roles.find(r => r.id === id)
+    user: DiscordUserPartial | undefined
+    voiceSessionId: string | undefined
+    voiceServer: { endpoint: string, guild_id: string, token: string } | undefined
+    voiceWs: DiscordVoiceWs | undefined
+
+    connectVoice() {
+        this.voiceWs = new DiscordVoiceWs(this.voiceSessionId!, this.voiceServer!)
+        this.voiceWs.connect()
     }
 
     static request(
@@ -86,14 +74,3 @@ export class DiscordClient {
 }
 
 const API_ROOT = "discord.com/api/v9"
-
-class DiscordGuildPlus {
-    client: DiscordClient
-    data: DiscordGuild
-    constructor(client: DiscordClient, data: DiscordGuild) {
-        this.client = client
-        this.data = data
-    }
-
-    members: any[] = []
-}

@@ -70,6 +70,14 @@ iframe {
   border-radius: 15px;
 }
 
+.code-block code {
+  background-color: initial;
+}
+
+.code-block pre {
+  border-radius: 4px;
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 8px;

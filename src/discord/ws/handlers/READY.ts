@@ -20,6 +20,9 @@ export default function onReady(client: DiscordClient, d: {
     client.ws.sessionId = d.session_id
 
     const user = d.user
+
+    client.user = user as any
+
     let guilds: DiscordGuild[] = d.guilds.map(data => new DiscordGuild(client, data))
 
     const guildPositions = d.user_settings.guild_positions
@@ -41,7 +44,7 @@ export default function onReady(client: DiscordClient, d: {
     client.setGuilds(guilds)
     setGuilds(guilds)
 
-    client.setUsers(d.users)
+    //client.setUsers(d.users)
 
     console.log(`Logged in as: ${user.username}#${user.discriminator}`)
 

@@ -1,5 +1,4 @@
 import { DiscordChannelBase } from "../discord-classes";
-import { DiscordClient } from "../DiscordClient";
 import { DiscordGuild } from "./DiscordGuild";
 import { CachedManager } from "./util";
 
@@ -39,8 +38,8 @@ export class DiscordChannelManager extends CachedManager<DiscordChannelBase> {
     
 
 
-    constructor(client: DiscordClient, guild: DiscordGuild) {
-        super(client)
+    constructor(guild: DiscordGuild) {
+        super(guild.client)
 
         this.guild = guild
     }

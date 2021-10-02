@@ -1,11 +1,12 @@
 import { Component } from 'react'
 import { colorIntToCss } from '../utils'
-import { DiscordEmbed, DiscordMessageIn } from './discord-classes'
+import { DiscordMessage } from './classes/DiscordMessage'
+import { DiscordEmbed } from './discord-classes'
 import { discordFormattedText } from './discord-message-formatting'
 
 type EmbedProps = {
     embed: DiscordEmbed
-    messageRef: DiscordMessageIn
+    messageRef: DiscordMessage
 }
 
 export default class Embed extends Component<EmbedProps> {

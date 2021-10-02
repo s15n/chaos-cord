@@ -1,6 +1,8 @@
-import { DiscordChannel, DiscordChannelBase, DiscordRole } from "../discord-classes";
+import { DiscordChannel, DiscordChannelBase } from "../discord-classes";
 import { DiscordClient } from "../DiscordClient";
 import { DiscordChannelManager } from "./DiscordChannel";
+import { DiscordMemberManager } from "./DiscordMember";
+import { DiscordRole, DiscordRoleData, DiscordRoleManager } from "./DiscordRole";
 import { DISCORD_IMAGE_BASE_URL, parseStaticImageURLOptions, StaticImageURLOptions } from "./util";
 
 export class DiscordGuild {
@@ -76,7 +78,7 @@ export class DiscordGuild {
 
     get memberCount() { return this.data.member_count }
 
-    members: undefined // GuildMemberManager
+    members: DiscordMemberManager
 
     get mfaLevel() { return this.data.mfa_level }
     // set
@@ -106,7 +108,11 @@ export class DiscordGuild {
     get publicUpdatesChannelId() { return this.data.public_updates_channel_id }
     // set
 
-    roles: undefined // RoleManager
+    private _roles: DiscordRoleManager | undefined
+    get roles() {
+        if (this._roles) return this._roles
+        return this._roles = new DiscordRoleManager(this)
+    }
 
     private _rulesChannel: DiscordChannel<0> | undefined
     get rulesChannel(): DiscordChannel<0> | null {
@@ -325,7 +331,8 @@ export class DiscordGuild {
         this.partnered = this.features.includes('PARTNERED')
         this.verified = this.features.includes('VERIFIED')
 
-        this.channels = new DiscordChannelManager(this.client, this)
+        this.channels = new DiscordChannelManager(this)
+        this.members = new DiscordMemberManager(this)
     }
 }
 
@@ -369,7 +376,7 @@ export interface DiscordGuildData {
     rules_channel_id: string | null
     system_channel_flags: number
     max_members: number
-    roles: DiscordRole[]
+    roles: DiscordRoleData[]
     premium_subscription_count: number
     guild_hashes: any
     emojis: any[]

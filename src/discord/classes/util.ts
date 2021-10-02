@@ -27,6 +27,18 @@ export class CachedManager<V extends { id: string }> {
         return typeof idOrInstance === 'string' ? idOrInstance : idOrInstance.id
     }
 
+    clear() {
+        this.cache.clear()
+    }
+
+    filter(predicate: (value: V) => unknown) {
+        const result: V[] = []
+        this.cache.forEach(v => {
+            if (predicate(v)) result.push(v)
+        })
+        return result
+    }
+
     constructor(client: DiscordClient) {
         this.client = client
     }

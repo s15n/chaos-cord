@@ -6,9 +6,10 @@ import ChatContainer from './chat/ChatContainer'
 import isElectron from 'is-electron'
 import Button from './components/Button'
 import { DiscordClient } from './discord/DiscordClient'
-import { DiscordChannelBase, DiscordIDK, DiscordRequestGuildMembers } from './discord/discord-classes'
+import { DiscordChannel, DiscordChannelBase, DiscordIDK, DiscordRequestGuildMembers } from './discord/discord-classes'
 import { CallbackHandler, noCallback } from './Callback'
 import { DiscordGuild } from './discord/classes/DiscordGuild'
+import { discordConnectVoice } from './discord/voice/DiscordVoice'
 
 const selectedGuildCH: CallbackHandler<DiscordGuild | null> = {
   callback: noCallback
@@ -63,6 +64,10 @@ export default class App extends Component<{}, {
 
     selectedChannelCH.callback = channel => {
       if (this.currentGuild && channel?.id) {
+        if (channel.type === 2)
+          discordConnectVoice(client!.ws, this.currentGuild, channel as DiscordChannel<2>)
+        else {
+
         const guildId = this.currentGuild.id
 
         window.localStorage.setItem(`selected_channel_${guildId}`, channel.id)
@@ -87,6 +92,8 @@ export default class App extends Component<{}, {
           activities: true,
           typing: true
         } as DiscordIDK)
+
+        }
         /*this.discordClient?.ws.send(8, {
           guild_id: guildId,
           user_ids: this.discordClient.userIds

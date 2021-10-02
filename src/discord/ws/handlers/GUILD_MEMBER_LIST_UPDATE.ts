@@ -1,4 +1,5 @@
 import { updateMembers } from "../../../chat/MemberList";
+import { DiscordMember, DiscordMemberData } from "../../classes/DiscordMember";
 import { DiscordRequestGuildMembers } from "../../discord-classes";
 import { DiscordClient } from "../../DiscordClient";
 
@@ -26,14 +27,15 @@ export default function onGuildMemberListUpdate(client: DiscordClient, d: {
 }) {
     console.log('Update members')
 
-    const g = client.getGuildPlus(d.guild_id)
+    const g = client.getGuild(d.guild_id)
     if (!g) return
 
-    g.members = []
+    g.members.clear()
 
     const op = d.ops[0]
     if (op.op !== 'SYNC') return
-    g.members.push(...op.items!.filter(i => 'member' in i).map(i => (i as any).member))
+    //g.members.push(...op.items!.filter(i => 'member' in i).map(i => (i as any).member))
+    op.items!.filter(i => 'member' in i).map(i => (i as any).member as DiscordMemberData).forEach(m => g.members.cache.set(m.user!.id, new DiscordMember(g, m)))
 
     console.log(g.members)
 

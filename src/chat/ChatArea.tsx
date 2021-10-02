@@ -2,7 +2,7 @@ import { Component, createRef, RefObject, UIEvent, UIEventHandler } from 'react'
 import { currentClient } from '../App';
 import { CallbackHandler, noCallback } from '../Callback'
 import Button from '../components/Button';
-import { DiscordChannel, DiscordChannelBase, DiscordMessageIn } from '../discord/discord-classes';
+import { DiscordChannel, DiscordChannelBase } from '../discord/discord-classes';
 import { DiscordClient } from '../discord/DiscordClient';
 import { dateToDateString } from '../utils';
 import { isMemberListVisible } from './ChatContainer';
@@ -10,12 +10,13 @@ import ChatMessage from './ChatMessage';
 import StorePage from './StorePage';
 
 import './ChatArea.css'
+import { DiscordMessage, DiscordMessageData } from '../discord/classes/DiscordMessage';
 
-const messageHandler: CallbackHandler<DiscordMessageIn> = {
+const messageHandler: CallbackHandler<DiscordMessage> = {
     callback: noCallback
 }
 
-export function pushMessage(message: DiscordMessageIn) {
+export function pushMessage(message: DiscordMessage) {
     messageHandler.callback(message);
 }
 
@@ -52,12 +53,12 @@ type ChatProps = {
 }
 
 class Chat extends Component<ChatProps, {
-    messages: DiscordMessageIn[]
+    messages: DiscordMessage[]
 }> {
     private currentChannel = this.props.channel
 
     private channelId = this.props.channel?.id
-    private messages: DiscordMessageIn[] = []
+    private messages: DiscordMessage[] = []
 
     private fetchPaused = false
     private prevScroll = {
@@ -85,7 +86,7 @@ class Chat extends Component<ChatProps, {
             for (let i = messages.length - 1; i >= 0; --i) {
                 const m = messages[i]
                 m["guild_id"] = this.props.guildId
-                this.messages.push(m)
+                this.messages.push(new DiscordMessage(currentClient()!, m))
             }
             this.setState({
                 messages: this.messages
@@ -93,7 +94,7 @@ class Chat extends Component<ChatProps, {
         })
     }
 
-    pushMessage(message: DiscordMessageIn) {
+    pushMessage(message: DiscordMessage) {
         this.messages.push(message)
         return this.messages
     }
@@ -103,7 +104,7 @@ class Chat extends Component<ChatProps, {
             //console.log(message.channel_id)
             //console.log(this.props.channel?.id)
             //console.log('#####')
-            if (message.channel_id !== this.channelId) return
+            if (message.channelId !== this.channelId) return
 
             this.setState({
                 messages: this.pushMessage(message)
@@ -145,11 +146,11 @@ class Chat extends Component<ChatProps, {
             value.json()
         ).then(messages => {
             if (!Array.isArray(messages)) return
-            const newMessages: DiscordMessageIn[] = []
+            const newMessages: DiscordMessage[] = []
             for (let i = messages.length - 1; i >= 0; --i) {
                 const m = messages[i]
                 m["guild_id"] = this.props.guildId
-                newMessages.push(m)
+                newMessages.push(new DiscordMessage(currentClient()!, m))
             }
             this.messages.unshift(...newMessages)
             this.setState({
@@ -195,7 +196,7 @@ class Chat extends Component<ChatProps, {
             }*/
             const userId = message.author.id
             let groupStart = userId !== prevUserId
-            const time = new Date(message.timestamp)
+            const time = new Date(message.createdAt)
             //const timeDiff = lastMessage ? new Date(message.timestamp).getTime() - new Date(lastMessage.timestamp).getTime() : undefined
             const day = `${time.getDate()}.${time.getMonth()}.${time.getFullYear()}`
             const separator = day !== prevTime?.day

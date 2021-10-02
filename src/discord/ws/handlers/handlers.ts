@@ -4,7 +4,9 @@ const EVENTS = {
     READY: 'ready',
     MESSAGE_CREATE: 'messageCreate',
     GUILD_MEMBERS_CHUNK: 'guildMembersChunk',
-    GUILD_MEMBER_LIST_UPDATE: 'guildMemberListUpdate'
+    GUILD_MEMBER_LIST_UPDATE: 'guildMemberListUpdate',
+    VOICE_STATE_UPDATE: 'voiceStateUpdate',
+    VOICE_SERVER_UPDATE: 'voiceServerUpdate'
 }
 
 type Handler = Promise<(client: DiscordClient, d: any) => void>

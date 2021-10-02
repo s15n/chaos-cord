@@ -1,13 +1,14 @@
 import { Component } from 'react'
 import { CallbackHandler, noCallback } from '../Callback'
 import { DiscordGuild } from '../discord/classes/DiscordGuild'
+import { DiscordMember, DiscordMemberManager } from '../discord/classes/DiscordMember'
 import { DiscordChannelBase } from '../discord/discord-classes'
 
-const membersCH: CallbackHandler<any[]> = {
+const membersCH: CallbackHandler<DiscordMemberManager> = {
     callback: noCallback
 }
 
-export function updateMembers(members: any[]) {
+export function updateMembers(members: DiscordMemberManager) {
     membersCH.callback(members)
 }
 
@@ -17,14 +18,14 @@ type MemberListProps = {
 }
 
 type MemberListState = {
-    members: any[]
+    members: DiscordMemberManager | null
 }
 
 export default class MemberList extends Component<MemberListProps, MemberListState> {
     constructor(props: MemberListProps) {
         super(props)
         this.state = {
-            members: []
+            members: null
         }
     }
 
@@ -41,6 +42,35 @@ export default class MemberList extends Component<MemberListProps, MemberListSta
     render() {
         let hoistCache: string | null | undefined = undefined
         let atOffline = false
+
+        const membersComponents: any[] = []
+        this.state.members?.cache?.forEach((m, i) => {
+            const member = <Member key={i} member={m}/>
+            const notOffline = m.presence.status !== 'offline'
+            if ((hoistCache !== m.hoistedRoleId || !notOffline) && !atOffline) {
+                hoistCache = m.hoistedRoleId
+                const title = notOffline ? (hoistCache === null ? 'ONLINE' : m.roles.resolve(hoistCache)?.name?.toUpperCase()) : 'OFFLINE'
+                if (!notOffline) {
+                    atOffline = true
+                }
+                membersComponents.push(
+                    <>
+                    <div style={{
+                        paddingLeft: 16,
+                        paddingTop: 24,
+                        paddingRight: 8,
+                        color: '#7f7f7f',
+                        fontSize: '12px',
+                        fontWeight: 600
+                    }}>{title}</div>
+                    {member}
+                    </>
+                )
+            } else {
+                membersComponents.push(member)
+            }
+        })
+
         return (
             <aside id='MemberList' style={{
                 width: 240,
@@ -52,31 +82,7 @@ export default class MemberList extends Component<MemberListProps, MemberListSta
                     position: 'absolute',
                     width: 'inherit',
                 }}>
-                    {this.state.members.map((m, i) => {
-                        const member = <Member key={i} member={m}/>
-                        const notOffline = m.presence.status !== 'offline'
-                        if ((hoistCache !== m.hoisted_role || !notOffline) && !atOffline) {
-                            hoistCache = m.hoisted_role
-                            const title = notOffline ? (hoistCache === null ? 'ONLINE' : hoistCache) : 'OFFLINE'
-                            if (!notOffline) {
-                                atOffline = true
-                            }
-                            return (
-                                <>
-                                <div style={{
-                                    paddingLeft: 16,
-                                    paddingTop: 24,
-                                    paddingRight: 8,
-                                    color: '#7f7f7f',
-                                    fontSize: '12px',
-                                    fontWeight: 600
-                                }}>{title}</div>
-                                {member}
-                                </>
-                            )
-                        }
-                        return member
-                    })}
+                    {membersComponents}
                 </div>
             </aside>
         )
@@ -84,12 +90,24 @@ export default class MemberList extends Component<MemberListProps, MemberListSta
 }
 
 type MemberProps = {
-    member: any
+    member: DiscordMember
 }
 
 class Member extends Component<MemberProps> {
     render() {
-        const { image, name, status, platform } = getMember(this.props.member)
+        //const { image, name, status, platform } = getMember(this.props.member)
+        const member = this.props.member
+
+        const image = member.displayAvatarURL({ format: 'webp', size: 128 })!
+        const name = member.displayName
+        const status = member.presence.status
+        const cs = member.presence.client_status
+        const platform = cs?.web === status ? 'web' : cs?.desktop === status ? 'desktop' : cs?.mobile === status ? 'mobile' : 'offline'
+
+        let color: any = member.displayColor ?? 0x7f7f7f
+        color = color ? `${color >> 16} ${(color >> 8) & 0xff} ${color & 0xff}` : '127 127 127'
+        color = status !== 'offline' ? `rgb(${color})` : `rgb(${color} / 30%)`
+        
         return (
             <div style={{
                 width: 224,
@@ -133,7 +151,8 @@ class Member extends Component<MemberProps> {
                     }}>
                         <span style={{
                             height: 18,
-                            display: 'block'
+                            display: 'block',
+                            color: color
                         }}>{name}</span>
                         {/*<span style={{
                             display: 'block',
@@ -147,19 +166,19 @@ class Member extends Component<MemberProps> {
     }
 }
 
-function getMember(member: any) {
+/*function getMember(member: DiscordMember) {
     const avatar = member.avatar ?? member.user.avatar;
     const image = avatar ? `https://cdn.discordapp.com/avatars/${member.user.id}/${avatar}.webp?size=128` : `https://cdn.discordapp.com/embed/avatars/${Number.parseInt(member.user.discriminator) % 5}.png`
     const status = member.presence.status
     const cs = member.presence.client_status
     const platform = cs.web === status ? 'web' : cs.desktop === status ? 'desktop' : cs.mobile === status ? 'mobile' : 'offline'
     return {
-        image: image,
+        image: member.displayAvatarURL({ format: 'webp', size: 128 })!,
         name: member.nick ?? member.user.username,
         status: status,
         platform: platform,
     }
-}
+}*/
 
 /*
 const MembersList = () => {

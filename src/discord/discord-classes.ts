@@ -1,5 +1,7 @@
+import { DiscordMemberData } from "./classes/DiscordMember"
+
 //#region Socket
-export type OPOut = 2 | 6 | 8 | 14
+export type OPOut = 2 | 4 | 6 | 8 | 14
 
 export interface DiscordSocketPayload<OP extends OPOut, D extends DiscordData<OP>> {
     op: OP
@@ -108,19 +110,6 @@ export interface DiscordChannel<T extends DiscordChannelType> {
 
 export type DiscordChannelBase = DiscordChannel<DiscordChannelType>
 
-export interface DiscordRole {
-    tags?: any
-    position: number
-    permissions: string
-    name: string
-    mentionable: boolean
-    managed: boolean
-    id: string
-    icon: string | null
-    hoist: boolean
-    color: number
-}
-
 interface DiscordEmoji {
     roles: any[]
     require_colons: boolean
@@ -129,34 +118,6 @@ interface DiscordEmoji {
     id: string
     available: boolean
     animated: boolean
-}
-
-export interface DiscordMessage {
-
-}
-
-export interface DiscordMessageIn {
-    type: number
-    tts: boolean
-    timestamp: string
-    referenced_message: DiscordMessageIn | null
-    pinned: boolean
-    mentions: (DiscordUserPartial & {
-        member: DiscordMemberPartial
-    })[]
-    mention_roles: string[]
-    mention_everyone: boolean
-    member?: DiscordMemberPartial
-    id: string
-    flags: number
-    embeds: DiscordEmbed[]
-    edited_timestamp: any | null
-    content: string | null
-    components: any[]
-    channel_id: string
-    author: DiscordUserPartial
-    attachments: DiscordAttachment[]
-    guild_id: string
 }
 
 export interface DiscordMemberPartial {
