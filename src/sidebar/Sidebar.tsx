@@ -1,12 +1,16 @@
 import { Component, memo } from 'react'
 import { DiscordGuild } from '../discord/classes/DiscordGuild'
 import { DiscordChannelBase } from '../discord/discord-classes'
+import { DiscordVoiceState } from '../discord/voice/DiscordVoice'
 import Channels from './Channels'
 import MainPage from './MainPage'
+import UserInfo from './UserInfo'
+import VoiceInfo from './VoiceInfo'
 
 type SidebarProps = {
     selectedGuild: DiscordGuild | null
     selectedChannel: DiscordChannelBase | null
+    currentVoice: DiscordVoiceState | null
 }
 
 export default class Sidebar extends Component<SidebarProps> {
@@ -26,7 +30,7 @@ export default class Sidebar extends Component<SidebarProps> {
                     display: 'flex',
                     flexGrow: 1,
                     flexDirection: 'column',
-                    height: 'calc(100% - 53px)'
+                    height: 'calc(100% - 75px)'
                 }}>
                     <div style={{
                         width: 218,
@@ -80,16 +84,8 @@ export default class Sidebar extends Component<SidebarProps> {
                     }
                 </nav>
                 <UserInfo/>
+                {this.props.currentVoice ? <VoiceInfo currentVoice={this.props.currentVoice}/> : null}
             </div>
         )
     }
 }
-
-const UserInfo = memo(() => (
-    <section style={{
-        width: '100%',
-        height: 53
-    }}>
-        UserInfo
-    </section>
-))

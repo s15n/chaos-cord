@@ -1,3 +1,4 @@
+import { setVoiceState } from "../../../App";
 import { DiscordClient } from "../../DiscordClient";
 
 export default function onMessageCreate(client: DiscordClient, d: {
@@ -15,6 +16,9 @@ export default function onMessageCreate(client: DiscordClient, d: {
     console.log('VOICE SERVER FOUND: '+d.endpoint)
 
     if (client.voiceSessionId) {
+        setVoiceState({ state: 'BOTH' })
         client.connectVoice()
+    } else {
+        setVoiceState({ state: 'SERVER' })
     }
 }

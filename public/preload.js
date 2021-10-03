@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld(
     windowButton: (action) => ipcRenderer.send('window-button', action),
     openGameUrl: (url) => ipcRenderer.send('open-game-url', url),
     devTools: () => ipcRenderer.send('dev-tools'),
-    reloadPage: () => ipcRenderer.send('reload-page')
+    reloadPage: () => ipcRenderer.send('reload-page'),
+    udp: (ip, port) => ipcRenderer.send('udp', ip, port)
   }
 );

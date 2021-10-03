@@ -4,12 +4,11 @@ import Sidebar from './sidebar/Sidebar'
 import Guilds from './guildsbar/Guilds'
 import ChatContainer from './chat/ChatContainer'
 import isElectron from 'is-electron'
-import Button from './components/Button'
 import { DiscordClient } from './discord/DiscordClient'
 import { DiscordChannel, DiscordChannelBase, DiscordIDK, DiscordRequestGuildMembers } from './discord/discord-classes'
 import { CallbackHandler, noCallback } from './Callback'
 import { DiscordGuild } from './discord/classes/DiscordGuild'
-import { discordConnectVoice } from './discord/voice/DiscordVoice'
+import { discordConnectVoice, discordDisconnectVoice, DiscordVoiceState } from './discord/voice/DiscordVoice'
 
 const selectedGuildCH: CallbackHandler<DiscordGuild | null> = {
   callback: noCallback
@@ -27,6 +26,24 @@ export function selectChannel(channel: DiscordChannelBase | null) {
   selectedChannelCH.callback(channel)
 }
 
+const voiceStateCH: CallbackHandler<DiscordVoiceState | null> = {
+  callback: noCallback
+}
+let prevVoiceState: DiscordVoiceState | undefined
+export function setVoiceState(state: Partial<DiscordVoiceState> | null) {
+  console.log(`Update Voice State: ${state?.state}`)
+  const newState = state === null ? null : {
+    ...prevVoiceState,
+    ...state
+    /*channel: (prevVoiceState?.channel ?? state.channel)!,
+    state: (prevVoiceState?.state ?? state.state)!,
+    vws: (prevVoiceState?.vws ?? state.vws)!*/
+  } as DiscordVoiceState
+  prevVoiceState = newState ?? undefined
+  voiceStateCH.callback(newState)
+}
+
+
 let client: DiscordClient | undefined = undefined
 
 export function currentClient() {
@@ -42,6 +59,7 @@ const keyListener = (e: KeyboardEvent) => {
 export default class App extends Component<{}, {
   selectedGuild: DiscordGuild | null
   selectedChannel: DiscordChannelBase | null
+  currentVoice: DiscordVoiceState | null
 }> {
   private discordClient?: DiscordClient
 
@@ -49,7 +67,8 @@ export default class App extends Component<{}, {
     super(props)
     this.state = {
       selectedGuild: null,
-      selectedChannel: null
+      selectedChannel: null,
+      currentVoice: null
     }
   }
 
@@ -99,8 +118,9 @@ export default class App extends Component<{}, {
           user_ids: this.discordClient.userIds
         } as DiscordRequestGuildMembers)*/
       } else { console.warn(`No guild selected (Tried to select Channel ${channel?.name} on Guild ${this.currentGuild})`) }
-      this.setState({ selectedChannel: channel })
+      if (channel?.type !== 2) this.setState({ selectedChannel: channel })
     }
+
     selectedGuildCH.callback = guild => {
       this.setState({ selectedGuild: guild })
       const scId = window.localStorage.getItem(`selected_channel_${guild?.id}`)
@@ -109,6 +129,12 @@ export default class App extends Component<{}, {
       this.currentGuild = guild
       if (sc) selectChannel(sc)
     }
+
+    voiceStateCH.callback = state => {
+      if (state === null && client) discordDisconnectVoice(client)
+      this.setState({ currentVoice: state })
+    }
+
 
     if (isElectron()) {
       console.log('Electron')
@@ -130,6 +156,7 @@ export default class App extends Component<{}, {
 
     selectedGuildCH.callback = noCallback
     selectedChannelCH.callback = noCallback
+    voiceStateCH.callback = noCallback
 
     this.discordClient?.close()
     client = undefined
@@ -141,7 +168,7 @@ export default class App extends Component<{}, {
         {isElectron() ? <AppBar/> : null}
         <div id='app-root'>
           <Guilds selectedGuild={this.state.selectedGuild}/>
-          <Sidebar selectedGuild={this.state.selectedGuild} selectedChannel={this.state.selectedChannel}/>
+          <Sidebar selectedGuild={this.state.selectedGuild} selectedChannel={this.state.selectedChannel} currentVoice={this.state.currentVoice}/>
           <ChatContainer guild={this.state.selectedGuild ?? null} selectedChannel={this.state.selectedChannel}/>
         </div>
       </div>

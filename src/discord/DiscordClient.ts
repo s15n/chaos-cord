@@ -40,7 +40,11 @@ export class DiscordClient {
     voiceWs: DiscordVoiceWs | undefined
 
     connectVoice() {
-        this.voiceWs = new DiscordVoiceWs(this.voiceSessionId!, this.voiceServer!)
+        /*if (this.user) {
+            console.error('NO USER ID');
+            return
+        }*/
+        this.voiceWs = new DiscordVoiceWs(this.voiceSessionId!, this.user!.id, this.voiceServer!)
         this.voiceWs.connect()
     }
 

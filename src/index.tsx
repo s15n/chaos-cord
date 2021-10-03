@@ -28,8 +28,10 @@ declare global {
       openGameUrl(url: string): void
       devTools(): void
       reloadPage(): void
+      udp(ip: string, port: number): void
     }
     currentDiscordHbTimerId?: number
+    currentDiscordVWSHbTimerId?: number
   }
 }
 

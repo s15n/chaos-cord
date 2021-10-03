@@ -6,6 +6,8 @@ let isDev;
 try { isDev = require('electron-is-dev'); }
 catch { isDev = false; }
 
+const { udp } = require('./udp/udp');
+
 /**
  * @type {BrowserWindow}
  */
@@ -79,9 +81,14 @@ ipcMain.on('reload-page', () => {
 });
 
 ipcMain.on('open-game-url', (_, url) => {
-    console.log(`Starting game ${url}`)
-    openGameUrl(url)
+    console.log(`Starting game ${url}`);
+    openGameUrl(url);
 });
+
+ipcMain.on('udp', (_, ip, port) => {
+    console.log(`UDP ${ip}:${port}`);
+    udp(ip, port);
+})
 
 function openGameUrl(url) {
     spawn("cmd.exe", [

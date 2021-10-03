@@ -22,6 +22,7 @@ export default function onReady(client: DiscordClient, d: {
     const user = d.user
 
     client.user = user as any
+    console.log(client.user)
 
     let guilds: DiscordGuild[] = d.guilds.map(data => new DiscordGuild(client, data))
 

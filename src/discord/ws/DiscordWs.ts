@@ -32,7 +32,10 @@ export class DiscordWs {
         socket.addEventListener('close', event => {
             console.warn(`Discord WS Closed! "${event.reason}", Code: ${event.code}`)
             window.clearInterval(this._hbTimerId)
-            if (event.code !== 1000) this.login(token, true)
+
+            this.client.voiceWs?.close()
+
+            if (event.code > 2000) this.login(token, true)
         })
     
         socket.addEventListener('message', event => {
@@ -52,9 +55,9 @@ export class DiscordWs {
                 this._handleHello(token, resume, d)
                 break
             case 11:
-                    this.latency = Date.now() - this._lastHb
-                    console.log(`...Received (latency: ${this.latency})`)
-                    break
+                this.latency = Date.now() - this._lastHb
+                console.debug(`...Received (latency: ${this.latency})`)
+                break
             case 0:
                 this._sequenceId = s
                 if (!this._handleEvent(t, d)) this._logUnknownEvent(object)
@@ -104,7 +107,7 @@ export class DiscordWs {
             window.clearInterval(this._hbTimerId)
             //this.socket.close(1000)
         } else {
-            console.log(`[${dateToHHMMSS(new Date())}]: Heartbeat... (${this.sessionId})`)
+            console.debug(`[${dateToHHMMSS(new Date())}]: Heartbeat... (${this.sessionId})`)
             this.socket?.send(JSON.stringify({
                 op: 1,
                 d: sequenceId
