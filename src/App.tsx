@@ -9,6 +9,7 @@ import { DiscordChannel, DiscordChannelBase, DiscordIDK, DiscordRequestGuildMemb
 import { CallbackHandler, noCallback } from './Callback'
 import { DiscordGuild } from './discord/classes/DiscordGuild'
 import { discordConnectVoice, discordDisconnectVoice, DiscordVoiceState } from './discord/voice/DiscordVoice'
+import PCMPlayer from 'pcm-player'
 
 const selectedGuildCH: CallbackHandler<DiscordGuild | null> = {
   callback: noCallback
@@ -78,6 +79,7 @@ export default class App extends Component<{}, {
   private selectedChannelsPayload: Map<string, { [name: string]: [[0, 99]] }> = new Map()
 
   componentDidMount() {
+
     console.log('App Component did mount')
     window.addEventListener('keypress', keyListener)
 
@@ -140,6 +142,18 @@ export default class App extends Component<{}, {
       console.log('Electron')
       console.log(window.electron)
       window.electron.ping()
+    
+      const pcmPlayer = new PCMPlayer({
+        inputCodec: 'Int16',
+        channels: 2,
+        flushTime: 2000,
+        sampleRate: 28000
+      })
+  
+      window.electron.setPcmHandler((data) => {
+        //console.log(data)
+        pcmPlayer.feed(Buffer.alloc(48000, Buffer.from(data)))
+      })
     }
     let token = window.localStorage.getItem('token')
     if (!token) {

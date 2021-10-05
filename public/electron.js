@@ -6,7 +6,7 @@ let isDev;
 try { isDev = require('electron-is-dev'); }
 catch { isDev = false; }
 
-const { udp } = require('./udp/udp');
+const { udp, disconnectUDP, receiveKey } = require('./udp/udp');
 
 /**
  * @type {BrowserWindow}
@@ -85,10 +85,28 @@ ipcMain.on('open-game-url', (_, url) => {
     openGameUrl(url);
 });
 
-ipcMain.on('udp', (_, ip, port) => {
-    console.log(`UDP ${ip}:${port}`);
-    udp(ip, port);
+ipcMain.on('udp', (event, ip, port, ssrc) => {
+    console.log(`UDP ${ip}:${port} ssrc=${ssrc}`);
+    udp(ip, port, ssrc, (p_ip, p_port) => {
+        console.log(`Reply back ${p_ip}:${p_port}`);
+        event.reply('udp-reply', p_ip, p_port);
+    });
 })
+
+ipcMain.on('udp-disconnect', () => {
+    console.log('Disconnecting UDP');
+    disconnectUDP();
+});
+
+ipcMain.on('udp-key', (_, key) => {
+    console.log('Received voice key');
+    receiveKey(key);
+});
+
+ipcMain.on('pcm', (_, ...data) => {
+    //console.log(data);
+    window.webContents.send('pcm', ...data);
+});
 
 function openGameUrl(url) {
     spawn("cmd.exe", [

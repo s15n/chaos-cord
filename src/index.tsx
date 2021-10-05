@@ -28,7 +28,12 @@ declare global {
       openGameUrl(url: string): void
       devTools(): void
       reloadPage(): void
-      udp(ip: string, port: number): void
+      udp(ip: string, port: number, ssrc: number): void
+      disconnectUDP(): void
+      udpKey(key: number[]): void
+
+      setUdpReplyHandler(callback: (publicIp: string, publicPort: number) => void): void
+      setPcmHandler(callback: (data: any) => void): void
     }
     currentDiscordHbTimerId?: number
     currentDiscordVWSHbTimerId?: number

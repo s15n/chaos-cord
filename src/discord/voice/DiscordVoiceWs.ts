@@ -68,6 +68,10 @@ export class DiscordVoiceWs {
                 }
                 console.debug(`...Received (latency: ${this.latency})`)
                 break
+            case 4:
+                console.log('Secret Key: ', d.secret_key)
+                window.electron.udpKey(d.secret_key)
+                break
             default:
                 console.log('Unknown VWS event:')
                 console.log(event)
@@ -84,6 +88,8 @@ export class DiscordVoiceWs {
         }
         console.log('Closing VWS')
         this.socket.close(1000)
+
+        window.electron.disconnectUDP()
     }
     
     send(op: number, data: {}) {
@@ -124,20 +130,22 @@ export class DiscordVoiceWs {
         modes: string[]
     }) {
         console.log(`VWS ready! (${d.ip}:${d.port} ssrc: ${d.ssrc})`)
-
         setVoiceState({ state: 'VWS_READY'})
-        console.log('Select voice protocol')
-        this.send(1, {
-            protocol: isElectron() ? 'udp' : 'webrtc',
-            data: {
-                address: '127.0.0.1',
-                port: 50799,
-                mode: 'aead_aes256_gcm_rtpsize'
-            }
-        })
 
         if (isElectron()) {
-            window.electron.udp(d.ip, d.port)
+            window.electron.udp(d.ip, d.port, d.ssrc)
+            window.electron.setUdpReplyHandler((publicIp, publicPort) => {
+                console.log(`Select voice protocol at ${publicIp}:${publicPort}`)
+                this.send(1, {
+                    protocol: 'udp',
+                    data: {
+                        address: publicIp,
+                        port: publicPort,
+                        mode: 'xsalsa20_poly1305_lite'
+                    }
+                })
+                setVoiceState({ state: 'CONNECTED' })
+            })
             //udp(d.ip, d.port)
         }
     }
