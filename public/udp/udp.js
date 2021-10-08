@@ -2,6 +2,7 @@
 const dgram = require('dgram');
 const OpusScript = require('opusscript');
 const tweetnacl = require('tweetnacl');
+const Speaker = require('speaker');
 
 const { ipcMain } = require('electron');
 //import tweetnacl from 'tweetnacl'
@@ -165,11 +166,11 @@ function parsePacket(buffer, mode, nonce, secretKey) {
 }
 
 const opus = new OpusScript(48000, 2, OpusScript.Application.AUDIO);
-/*const speaker = new AudioSpeaker({
+const speaker = new Speaker({
     channels: 2,
     bitDepth: 16,
     sampleRate: 48000
-});*/
+});
 
 /**
  * Called when the UDP socket of the attached connection receives a message.
@@ -206,10 +207,11 @@ function onUdpMessage(msg) {
 			/*this.connectionData.*/secretKey,
 		);
         if (packet) {
-            const audio = [...opus.decode(packet)];
+            //const audio = [...opus.decode(packet)];
+            const audio = opus.decode(packet);
             console.log(audio);
-            //speaker.emit(audio);
-            ipcMain.emit('pcm', ...audio);
+            speaker.write(audio);
+            //ipcMain.emit('pcm', ...audio);
         }
 		/*if (packet) {
 			stream.push(packet);
@@ -233,6 +235,9 @@ function receiveKey(key_) {
 
 function disconnectUDP() {
     console.log("TODO?")
+    try {
+        client.disconnect();
+    } catch { }
 }
 
 module.exports.udp = udp
