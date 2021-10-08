@@ -12,6 +12,11 @@ const { udp, disconnectUDP, receiveKey } = require('./udp/udp');
  * @type {BrowserWindow}
  */
 let window;
+/**
+ * @type {Tray}
+ */
+let tray;
+
 function createWindow() {
     window = new BrowserWindow({
         width: 1280,
@@ -23,8 +28,11 @@ function createWindow() {
             nodeIntegration: true,
             preload: __dirname + '/preload.js'
         },
+
+        title: 'ChaosCord',
         icon: __dirname + '/favicon.ico'
     });
+    window.maximize();
 
     window.loadURL(
         isDev
@@ -34,10 +42,30 @@ function createWindow() {
 
     window.setMenu(null);
 
-    window.setOverlayIcon(new Tray(__dirname + '/badge-11.ico'))
+    window.on('close', (event) => {
+        if(!app.isQuitting){
+            event.preventDefault();
+
+            tray = new Tray(__dirname + '/assets/tray.png');
+            tray.setToolTip('ChaosCord');
+            tray.once('click', () => {
+                window.show();
+                window.setSkipTaskbar(false);
+                tray.destroy();
+                tray = undefined;
+            });
+
+            window.hide();
+            window.setSkipTaskbar(true);
+        }
+    });
 }
 
 app.whenReady().then(createWindow);
+
+app.on('before-quit', () => {
+    app.isQuitting = true;
+});
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {

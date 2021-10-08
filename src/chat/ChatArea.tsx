@@ -11,6 +11,7 @@ import StorePage from './StorePage';
 
 import './ChatArea.css'
 import { DiscordMessage, DiscordMessageData } from '../discord/classes/DiscordMessage';
+import { discordFormattedText } from '../discord/discord-message-formatting';
 
 const messageHandler: CallbackHandler<DiscordMessage> = {
     callback: noCallback
@@ -247,13 +248,17 @@ type InputProps = {
 
 class Input extends Component<InputProps, {
     input: string
+    activitiesShown: boolean
 }> {
-    textAreaRef: any
+    textAreaRef: RefObject<HTMLTextAreaElement>
+
+    activities: any[] = []
 
     constructor(props: InputProps) {
         super(props)
         this.state = {
-            input: props.input[0]
+            input: props.input[0],
+            activitiesShown: false
         }
         this.textAreaRef = createRef()
     }
@@ -279,7 +284,7 @@ class Input extends Component<InputProps, {
                             if (e.key === 'Enter' && !e.shiftKey) {
                                 e.preventDefault()
                                 
-                                const ref: HTMLTextAreaElement = this.textAreaRef.current
+                                const ref = this.textAreaRef.current!
                                 if (!ref.textContent) return
 
                                 this.setState({input: ''})
@@ -288,15 +293,89 @@ class Input extends Component<InputProps, {
                                 this.submit(ref.textContent)
                             }
                         }}
+                        onInput={e => {
+                            console.log(e)
+                        }}
                         onChange={e => {
                             this.setState({input: e.target.value})
+                            //e.target.
                         }}
                         value={this.state.input}
                         placeholder="Message #text"
                         autoFocus
                         spellCheck
-                        />
+                        >
+                        </textarea>
                     </div>
+
+                    <button onClick={e => {
+                        e.preventDefault()
+
+                        if (!this.state.activitiesShown) {
+                        DiscordClient.request('GET', ['applications', 'public'], undefined, undefined, ['application_ids=755827207812677713', 'application_ids=832012774040141894', 'application_ids=878067389634314250', 'application_ids=879863686565621790', 'application_ids=879863976006127627', 'application_ids=880218394199220334'])
+                        .then(value => value.json())
+                        .then(apps => {
+                            if (!Array.isArray(apps)) return
+                            this.activities = []
+                            apps.forEach(a => {
+                                this.activities.push(
+                                    <button style={{
+                                        height: 40,
+                                        marginTop: 10,
+                                        width: 220,
+                                        marginLeft: 10,
+                                        paddingLeft: 0,
+                                        display: 'block'
+                                    }} onClick={() => {
+                                        DiscordClient.request('POST', ['channels', this.textAreaRef.current?.value ?? 'null', 'invites'], {
+                                            max_age: 0,
+                                            target_type: 2,
+                                            target_application_id: a.id
+                                        })
+                                        .then(invite => invite.json())
+                                        .then(invite => {
+                                            this.submit(`https://discord.gg/${invite.code}`)
+                                            this.setState({ activitiesShown: false })
+                                        })
+                                    }}>
+                                        <img
+                                        src={`https://cdn.discordapp.com/app-icons/${a.id}/${a.icon}.webp?size=40&keep_aspect_ratio=false`}
+                                        alt={a.name}
+                                        style={{
+                                            float: 'left',
+                                            borderRadius: 4
+                                        }}
+                                        />
+                                        <div style={{
+                                            fontSize: 16,
+                                            fontWeight: 500,
+                                            paddingTop: 8,
+                                            float: 'left',
+                                            marginLeft: 10
+                                        }}>
+                                        {a.name}
+                                        </div>
+                                    </button>
+                                )
+                            })
+                            this.setState({ activitiesShown: true })
+                        })} else {
+                            this.setState({ activitiesShown: false })
+                        }
+                    }}>
+                        <div hidden={!this.state.activitiesShown} style={{
+                            position: 'absolute',
+                            marginTop: -328,
+                            marginLeft: -130,
+                            zIndex: 1000,
+                            backgroundColor: '#202020',
+                            paddingBottom: 10,
+                            borderRadius: 4,
+                        }}>
+                            {this.activities}
+                        </div>
+                        <svg width="24" height="24" viewBox="0 0 20 24"><g clip-path="url(#856f591c-ce22-4d14-9655-f75d44068523)"><path fill-rule="evenodd" clip-rule="evenodd" d="M4.92871 13.4149L10.5857 19.0709L18.3639 11.2927C19.7781 9.87859 22.6066 6.48376 21.1923 2.80748C17.5153 1.3932 14.1213 4.22173 12.7074 5.63625L4.92871 13.4149ZM16.064 9.93309C17.1686 9.93309 18.064 9.03766 18.064 7.93309C18.064 6.82852 17.1686 5.93309 16.064 5.93309C14.9594 5.93309 14.064 6.82852 14.064 7.93309C14.064 9.03766 14.9594 9.93309 16.064 9.93309Z" fill="currentColor"></path><path d="M3.41357 16.7844C2.34946 17.8496 2.00004 22 2.00004 22C2.00004 22 6.15125 21.6521 7.21627 20.5869C7.71243 20.0915 7.96638 19.4494 8 18.8004L5.21285 18.7866L5.19829 16C4.54947 16.0336 3.90973 16.2881 3.41357 16.7844Z" fill="currentColor"></path><path d="M9.17144 9.17151H3.51459L1.74684 10.9393L6.34302 11.9999L9.17144 9.17151Z" fill="currentColor"></path><path d="M14.8283 14.8283V20.4852L13.0606 22.2529L11.9999 17.6568L14.8283 14.8283Z" fill="currentColor"></path></g><defs><clipPath id="856f591c-ce22-4d14-9655-f75d44068523"><rect width="24" height="24"></rect></clipPath></defs></svg>
+                    </button>
 
                     <button>
                         <svg width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M5 3C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3H5ZM16.8995 8.41419L15.4853 6.99998L7 15.4853L8.41421 16.8995L16.8995 8.41419Z"></path></svg>

@@ -34,7 +34,6 @@ const ChatMessageItem = ({message}: {message: DiscordMessage}) => {
     return (
         <div
         style={{
-            width: 623,
             paddingLeft: 72, 
             paddingRight: 48, 
             paddingTop: 2,
