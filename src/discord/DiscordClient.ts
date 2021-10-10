@@ -12,7 +12,7 @@ export class DiscordClient {
 
     readonly ws = new DiscordWs(this)
 
-    private guilds: CachedManager<DiscordGuild> = new CachedManager(this)
+    guilds: CachedManager<DiscordGuild> = new CachedManager(this)
 
     setGuilds(guilds: DiscordGuild[]) {
         this.guilds.clear()

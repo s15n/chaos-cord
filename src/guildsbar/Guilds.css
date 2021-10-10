@@ -1,5 +1,82 @@
-/* width */
+#Guilds {
+  height: 100%;
+  width: 72px;
+  overflow: hidden auto;
+}
+
 #Guilds::-webkit-scrollbar {
   width: 0px;
   margin-top: 5px;
+}
+
+#GuildsTopSpace {
+  height: 14px;
+}
+
+#GuildsSeparator {
+  width: 32px;
+  height: 2px;
+  margin: 0 0 8px 20px;
+  background-color: #7f7f7f7f;
+}
+
+.GuildIcon {
+  width: 72px;
+  height: 48px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.GuildIcon>div {
+  width: 48px;
+  height: 48px;
+  margin-left: 12px;
+  cursor: pointer;
+}
+
+.GuildIcon>div .Indicator {
+  width: 4px;
+  margin-left: -8px;
+  height: 0;
+  margin-top: 0;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+  background-color: #bbbbbb;
+  float: left;
+}
+
+.GuildIcon>div:hover .Indicator {
+  height: 18px;
+  margin-top: 15px;
+}
+
+.GuildIcon>div:active .Indicator {
+  height: 48px;
+  margin-top: 0;
+}
+
+.GuildIcon>div .Icon {
+  width: 100%;
+  height: 100%;
+  border-radius: 24px;
+  background-color: #7f7f7f7f;
+}
+
+.GuildIcon>div:hover .Icon {
+  border-radius: 18px;
+  background-color: #7289da;
+}
+
+.GuildIcon>div:active .Icon {
+  border-radius: 18px;
+  background-color: #7289da;
+}
+
+img.Icon {
+  background-color: transparent !important;
+}
+
+.Icon>div {
+  color: #ffffff;
+  padding: 14px 0 0 10px;
 }
