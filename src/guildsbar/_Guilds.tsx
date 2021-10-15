@@ -5,11 +5,19 @@ import { DiscordClientContext } from '../_App'
 const Guilds: React.FC = () => {
     const client = React.useContext(DiscordClientContext)
 
+    const [guilds, setGuilds] = React.useState<Map<string, DiscordGuild>>(new Map())
+
+    React.useEffect(() => {
+        client?.on('ready', () => {
+            setGuilds(client.guilds.cache)
+        })
+    }, [client])
+
     const guildIcons = [
         <GuildIcon key="home" guild={null}/>,
         <div id="GuildsSeparator"/>
     ]
-    client?.guilds?.cache?.forEach((guild, id) => {
+    guilds.forEach((guild, id) => {
         guildIcons.push(
             <GuildIcon key={id} guild={guild}/>
         )

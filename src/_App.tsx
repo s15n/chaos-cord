@@ -59,6 +59,11 @@ const App: React.FC = () => {
 
         console.log('Login')
 
+
+        client.on('message_create', message => {
+            console.log(`MESSAGE CREATE: ${message.content}`)
+        })
+
         return () => {
             client.close()
             setClient(null)

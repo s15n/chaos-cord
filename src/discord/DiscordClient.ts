@@ -1,16 +1,20 @@
+import { EventEmitter } from "./EventEmitter";
 import { DiscordGuild } from "./classes/DiscordGuild";
 import { CachedManager } from "./classes/util";
 import { DiscordUserPartial } from "./discord-classes";
 import { DiscordVoiceWs } from "./voice/DiscordVoiceWs";
 import { DiscordWs } from "./ws/DiscordWs";
+import { DiscordMessage } from "./classes/DiscordMessage";
 
-export class DiscordClient {
+export class DiscordClient extends EventEmitter<DiscordClientEvents> {
     token: string
     constructor(token: string) {
+        super()
         this.token = token
     }
 
     readonly ws = new DiscordWs(this)
+
 
     guilds: CachedManager<DiscordGuild> = new CachedManager(this)
 
@@ -75,6 +79,18 @@ export class DiscordClient {
     static getCreatedAt({ id }: { id: string }) {
         return this.getSnowflakeCreatedAt(id)
     }
+}
+
+/*interface TypedEventEmitter {
+    on<K extends keyof DiscordClientEvents>(event: K, listener: (...args: DiscordClientEvents[K]) => void): this
+    on<S extends string | symbol>(event: Exclude<S, keyof DiscordClientEvents>, listener: (...args: any[]) => void): this;
+}*/
+
+export interface DiscordClientEvents {
+    [key: string]: [...any] | any[]
+
+    ready: []
+    message_create: [message: DiscordMessage]
 }
 
 const API_ROOT = "discord.com/api/v9"
