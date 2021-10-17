@@ -49,5 +49,7 @@ export default function onReady(client: DiscordClient, d: {
 
     console.log(`Logged in as: ${user.username}#${user.discriminator}`)
 
+    client.emit('ready')
+
     return true;
 }

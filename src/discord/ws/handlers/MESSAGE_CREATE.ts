@@ -5,7 +5,10 @@ import { DiscordClient } from "../../DiscordClient";
 export default function onMessageCreate(client: DiscordClient, d: DiscordMessageData, socket: WebSocket) {
     //console.log(d)
     //console.log(`Message create: ${d.content}`)
-    pushMessage(new DiscordMessage(client, d))
+    const message = new DiscordMessage(client, d)
+    pushMessage(message)
+
+    client.emit('message_create', message)
 
     return true;
 }
