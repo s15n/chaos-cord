@@ -8,6 +8,7 @@ import './App.css'
 import { DiscordClient } from './discord/DiscordClient';
 import Guilds from './guildsbar/_Guilds';
 import Sidebar from './sidebar/_Sidebar';
+import ChatContainer from './chat/ChatContainer';
 
 const keyListener = (e: KeyboardEvent) => {
     if (e.code === 'KeyR' && e.ctrlKey) window.electron.reloadPage()
@@ -85,7 +86,7 @@ const App: React.FC = () => {
                     <div id="app-root">
                         <Guilds/>
                         <Sidebar/>
-                        <ChatContainer/>
+                        <ChatContainer guild={selectedGuild} selectedChannel={selectedChannel}/>
                     </div>
                 </div>
             </DiscordStateContext.Provider>
@@ -129,8 +130,3 @@ const AppBarIcon: React.FC<AppBarIconProps> = ({ action, children }) => {
 }
 
 export default App
-
-
-function ChatContainer() {
-    return (<div></div>)
-}

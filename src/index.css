@@ -14,6 +14,10 @@ button:active {
   color: var(--button-color-active);
 }
 
+button:active:hover {
+  color: var(--button-color-active-hover);
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',

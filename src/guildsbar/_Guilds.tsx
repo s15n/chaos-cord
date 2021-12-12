@@ -1,6 +1,6 @@
 import React from 'react'
 import { DiscordGuild } from '../discord/classes/DiscordGuild'
-import { DiscordClientContext } from '../_App'
+import { DiscordClientContext, DiscordStateContext } from '../_App'
 
 const Guilds: React.FC = () => {
     const client = React.useContext(DiscordClientContext)
@@ -36,26 +36,27 @@ interface GuildIconProps {
 }
 
 const GuildIcon: React.FC<GuildIconProps> = ({ guild }) => {
+    const discordState = React.useContext(DiscordStateContext)
+
     const selectThisGuild: React.MouseEventHandler<HTMLDivElement> = event => {
-        //selectGuild(this.props.guild ?? null)
-        //event.target
+        discordState.setGuild(guild)
         console.log(event)
     }
 
     return (
-        <div className="GuildIcon">
+        <div className={guild?.id !== discordState.guild?.id ? 'GuildIcon' : 'GuildIcon active'}>
             <div
             onClick={selectThisGuild}
             >
                 <div className='Indicator'/>
-                <GuildIconImage guild={guild}/>
+                <GuildIconImage guild={guild} />
             </div>
         </div>
     )
 }
 
 const GuildIconImage: React.FC<GuildIconProps> = ({ guild }) => {
-    if (!guild) {
+    if (guild === null) {
         return (
             <div className="Icon">
                 <div>
@@ -64,10 +65,22 @@ const GuildIconImage: React.FC<GuildIconProps> = ({ guild }) => {
             </div>
         )
     }
-    return (
+    console.log(guild)
+    return guild.icon?.startsWith('a_') ? (<>
+        <img
+        className="Icon no-anim"
+        src={guild.iconURL({ format: 'webp' }) ?? undefined}
+        alt={guild.name}
+        />
+        <img
+        className="Icon anim"
+        src={guild.iconURL({ format: 'gif' }) ?? undefined}
+        alt={guild.name}
+        />
+    </>) : (
         <img
         className="Icon"
-        src={guild.iconURL() ?? ""/*(this.props.selected || this.state.hover) && this.props.guild.icon?.startsWith('a_') ? `https://cdn.discordapp.com/icons/${this.props.guild.id}/${this.props.guild.icon}.gif?size=96` : `https://cdn.discordapp.com/icons/${this.props.guild.id}/${this.props.guild.icon}.webp?size=96`*/}
+        src={guild.iconURL({ format: 'webp' }) ?? undefined}
         alt={guild.name}
         />
     )

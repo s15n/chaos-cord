@@ -38,11 +38,12 @@
   width: 4px;
   margin-left: -8px;
   height: 0;
-  margin-top: 0;
+  margin-top: 24px;
   border-top-right-radius: 8px;
   border-bottom-right-radius: 8px;
   background-color: #bbbbbb;
   float: left;
+  transition: height .1s, margin-top .1s;
 }
 
 .GuildIcon>div:hover .Indicator {
@@ -50,7 +51,7 @@
   margin-top: 15px;
 }
 
-.GuildIcon>div:active .Indicator {
+.GuildIcon.active>div .Indicator {
   height: 48px;
   margin-top: 0;
 }
@@ -60,20 +61,37 @@
   height: 100%;
   border-radius: 24px;
   background-color: #7f7f7f7f;
+  transition: background-color .1s, border-radius .1s;
 }
 
 .GuildIcon>div:hover .Icon {
-  border-radius: 18px;
+  border-radius: 14px;
   background-color: #7289da;
 }
 
-.GuildIcon>div:active .Icon {
-  border-radius: 18px;
+.GuildIcon.active>div .Icon {
+  border-radius: 14px;
   background-color: #7289da;
 }
 
 img.Icon {
   background-color: transparent !important;
+}
+
+.GuildIcon>div:hover .no-anim {
+  display: none
+}
+
+.GuildIcon.active>div .no-anim {
+  display: none
+}
+
+.GuildIcon>div:hover .anim {
+  display: initial
+}
+
+.GuildIcon.active>div .anim {
+  display: initial
 }
 
 .Icon>div {
