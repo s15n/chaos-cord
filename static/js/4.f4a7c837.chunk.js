@@ -1,0 +1,2 @@
+(this["webpackJsonpchaos-cord"]=this["webpackJsonpchaos-cord"]||[]).push([[4],{373:function(e,r,n){"use strict";n.r(r),n.d(r,"default",(function(){return c}));var o=n(55),t=n(56);function c(e,r){console.log("Update members");var n=e.getGuild(r.guild_id);if(n){n.members.clear();var c=r.ops[0];"SYNC"===c.op&&(c.items.filter((function(e){return"member"in e})).map((function(e){return e.member})).forEach((function(e){return n.members.cache.set(e.user.id,new t.a(n,e))})),console.log(n.members),Object(o.b)(n.members))}}}}]);
+//# sourceMappingURL=4.f4a7c837.chunk.js.map
