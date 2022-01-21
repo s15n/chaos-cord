@@ -1,0 +1,2 @@
+(this["webpackJsonpchaos-cord"]=this["webpackJsonpchaos-cord"]||[]).push([[7],{371:function(e,o,c){"use strict";c.r(o),c.d(o,"default",(function(){return i}));var s=c(8);function i(e,o,c){var i;e.voiceServer&&(e.voiceSessionId=void 0,null===(i=e.voiceWs)||void 0===i||i.close());e.voiceServer=o,console.log("VOICE SERVER FOUND: "+o.endpoint),e.voiceSessionId?(Object(s.e)({state:"BOTH"}),e.connectVoice()):Object(s.e)({state:"SERVER"})}}}]);
+//# sourceMappingURL=7.cdb81e02.chunk.js.map
