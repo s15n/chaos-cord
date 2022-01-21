@@ -36,4 +36,3 @@ jobs:
         BRANCH: gh-pages
         FOLDER: build
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        CLEAR_GLOBS_FILE: ".github/gh-pages-publish-clear"
