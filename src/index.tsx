@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './_App';
+import App from './App'; // './_App' is new, './App' is old
 import reportWebVitals from './reportWebVitals';
 import isElectron from 'is-electron';
 
